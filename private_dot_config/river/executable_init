@@ -16,6 +16,9 @@ riverctl map normal Super+Shift Return spawn foot
 # launcher
 riverctl map normal Super+Shift Space spawn "rofi -show drun"
 
+# Execute init script
+riverctl map normal Super+Shift R spawn '~/.config/river/init'
+
 # Super+Q to close the focused view
 riverctl map normal Super Q close
 
