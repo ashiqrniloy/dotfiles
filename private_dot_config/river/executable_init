@@ -196,9 +196,9 @@ exec gnome-keyring-daemon --start --components=secrets
 exec /usr/libexec/pam_kwallet_init
 
 # Wallpaper
-swaybg -i ~/Pictures/Wallpapers/bridge.jpg
+swaybg -m fill -i /home/arn/Pictures/Wallpapers/bridge.jpg
 
-export lockscreen='~/Pictures/Wallpapers/pier.jpg'
+export lockscreen='/home/arn/Pictures/Wallpapers/pier.jpg'
 
 # Idle Management
 pkill -f swayidle
