@@ -1,0 +1,1133 @@
+#+TITLE: Emacs Configuration
+#+AUTHOR: Niloy Rahman
+#+EMAIL: ashiq.r.niloy@gmail.com
+#+auto_tangle: t
+macro: latest-export-date (eval (format-time-string "%F %T %z"))
+#+macro: word-count (eval (count-words (point-min) (point-max)))
+
+*Last revised and exported on {{{latest-export-date}}} with a word
+count of {{{word-count}}}.*
+
+This is the literate config of emacs. The reason this is not a simple init.el file is that for emacs to work properly, especially in different operating systems, different setup for the computer is required. For example: a program has to be installed or specific path needs to be added to exec-path etc. This seems particularly important now that I am using emacs on Windows and there seem to a lot of quirks that need to be figured out.
+
+Following are some specific benefits of having this file:
+- This file can act as a setup documentation for future installations
+- OS specific instructions can be documented
+- Any external program specific instructions to be documented
+- Details on why some configuration was done
+- Details on why some package was installed.
+
+This text is just a simple reminder of why this time investment was made. 
+
+* Disclaimer and Credits
+:PROPERTIES:
+:ID:       5c241ff2-c926-44f7-869b-1b692bc91a9c
+:CREATED:  [2025-01-02 Thu 02:26]
+:BACKLINKS: [[id:ade029d8-d930-41ab-b575-8fd706301ef1][Conventions]]
+:END:
+I am not good at emacs lisp. And I don't understand emacs that well. Most of the code here is copied from somewhere. But what I have done is that I have tried to understand what the code is doing and kept only the snippets that made sense to me and seemed useful for what I use emacs for.
+
+This section is to give credit to the configuration files and their authors that I have copied things from:
+
+** TODO Find the links for the websites/repositories and provide links here
+
+1. Prot
+2. 
+* Conventions
+:PROPERTIES:
+:ID:       ade029d8-d930-41ab-b575-8fd706301ef1
+:CREATED:  [2025-01-02 Thu 02:26]
+:END:
+
+This section provides some conventions followed for this configuration. Following is a non-comprehensive list.
+
+1. Functions and variables that start with "arn" are generally written by me.
+2. There are cases where I copied a function and did not keep the name of the person who wrote the function. In such cases, I have used the prefix "unknown."
+3. Any function or variable code that are copied from somewhere, I will try to keep a link to those websites or repositories in the [[id:5c241ff2-c926-44f7-869b-1b692bc91a9c][Disclaimer and Credits]] section.
+4. For custom functions, the convention "name-function-name" is used.
+5. For custom variables, the convention "name--variable-name" is used.
+
+This is for me to remember how things are structured in the config. Anyone reading this config also may be could understand.
+* Installation
+:PROPERTIES:
+:ID:       e372e95b-8f96-496b-a023-651e8a9a54f5
+:CREATED:  [2025-01-07 Tue 03:31]
+:BACKLINKS: [[id:0c11cc3f-3468-401a-beb9-1f2772424af1][PDF-tools on Windows]]
+:END:
+** Windows
+:PROPERTIES:
+:ID:       7a3dd237-e584-4631-9fb7-37747c36a67b
+:CREATED:  [2025-01-02 Thu 03:20]
+:BACKLINKS: [[id:0c11cc3f-3468-401a-beb9-1f2772424af1][PDF-tools on Windows]]
+:END:
+
+*** Emacs for Windows
+:PROPERTIES:
+:ID:       e9d4acbc-d741-4404-9dcd-33212e47bf63
+:CREATED:  [2025-01-05 Sun 03:12]
+:END:
+
+For now, I have been using the mingw64 package for emacs installed through MSYS2. This seems to have all the basic things preferred such as: native compilation, json support etc. Yet to face any blocker to want to compile from source.
+
+*** Supplementary setup
+:PROPERTIES:
+:ID:       70fe6549-ddff-4b42-82a9-c11d72409392
+:CREATED:  [2025-01-05 Sun 03:15]
+:BACKLINKS: [[id:0c11cc3f-3468-401a-beb9-1f2772424af1][PDF-tools on Windows]]
+:END:
+
+**** [[id:3146e3f0-a10b-42d9-919a-47152b743dde][Install fonts]]
+
+**** TODO Creating backup for this config file
+:PROPERTIES:
+:ID:       d4f3c45c-67fc-409e-9049-c48e8c7881f1
+:CREATED:  [2025-01-09 Thu 03:11]
+:END:
+
+**** Install Pandoc
+:PROPERTIES:
+:ID:       b9ec6fe4-57d8-469f-9832-44d474129bc9
+:CREATED:  [2025-01-19 Sun 17:40]
+:END:
+
+Pandoc is an essential program for document format conversion. This will be essential when trying to view file formats such as: docx in emacs. Mostly useful for [[id:5f6b809c-5e15-453d-95c6-2a00f12983a7][Search everything]] for archiving functionality.
+
+
+* Early Initialization (early-init.el)
+:PROPERTIES:
+:ID:       9043fd3a-4e52-40b5-9d40-6dfe17df7088
+:CREATED:  [2025-01-02 Thu 01:34]
+:END:
+
+This is the first file that emacs loads. This file should not contain anything that has dependency on any package. There are some things are that are suitable for putting into this file.
+
+** Startup time and garbage collection
+:PROPERTIES:
+:ID:       723fb977-ddb5-4699-a179-c49852b37914
+:CREATED:  [2025-01-02 Thu 01:49]
+:END:
+I don't have a good reason for adding this except for I can't use the Emacs daemon in Windows and hence startup time becomes important. One of the ways startup time can be improved is apparently by tweaking garbage collection settings. By increasing the garbage collection threshold, it is possible to speed up the startup time a little bit. Then by adding a hook to emacs startup, garbage collection threshold is adjusted to a practical one.
+
+Just for information, "gc-cons-threshold" indicates the threshold for the volume of garbage generated after which garbage collection is triggered. "gc-cons-percentage" dictates the percetage of memory in heap that emacs is allowed to use before garbage collection is triggered.
+
+Like many others, this config is copied from Prot emacs. He also did some tweaks to two other things here called "file-name-handler-alist" and "vc-handled-backend". I have no interest in actually learning what these are. Merely trusting Prot.
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+  (setq gc-cons-threshold most-positive-fixnum
+        gc-cons-percentage 0.8)
+
+  ;; storing the default value to restore via the 'emacs-startup-hook'
+  (defvar prot-emacs--file-name-handler-alist file-name-handler-alist)
+  (defvar prot-emacs--vc-handled-backends vc-handled-backends)
+
+  (setq file-name-handler-alist nil
+        vc-handled-backends nil)
+
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              (setq gc-cons-threshold (* 1000 1000 80)
+                    gc-cons-percentage 0.2
+                    file-name-handler-alist prot-emacs--file-name-handler-alist
+                    vc-handled-backends prot-emacs--vc-handled-backends)))
+#+end_src
+
+** Initialize package cache
+:PROPERTIES:
+:ID:       f6df62da-bd5a-4b41-a185-c61ba3ee1a43
+:CREATED:  [2025-01-02 Thu 02:34]
+:END:
+Using the standard package manager package.el, initialization of package cache at this stage also seem to speed up startup time based on investigation by Prot. This also solves some of the problems faced by him. Such as: he found that sometimes the "describe-package" command did not have an index and required "package-refresh-contents".
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+  (setq package-enable-at-startup t)
+#+end_src
+
+** LSP use PLIST
+:PROPERTIES:
+:ID:       48cf0d69-6df3-4ed4-9c20-1661c53c0a29
+:CREATED:  [2025-01-02 Thu 02:49]
+:END:
+
+For LSP-mode, the following config is recommended in their documentation to enhance LSP performance.
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+  (setenv "LSP_USE_PLISTS" "true")
+#+end_src
+
+** Hiding the title bar
+
+#+begin_src emacs-list :tangle "early-init.el"
+  (add-to-list 'default-frame-alist '(undecorated . t))
+#+end_src
+
+** Setting the default font before emacs frame is created
+#+begin_src emacs-lisp :tangle "early-init.el"
+    ;; setup default font
+  (add-to-list 'default-frame-alist '(font . "MartianMono Nerd Font" ))
+  (set-face-attribute 'default t :font "MartianMono Nerd Font" :height 100)
+#+end_src
+** Early Initialization end:
+#+begin_src emacs-lisp :tangle "early-init.el"
+  (provide 'early-init)
+;;; early-init.el ends here
+#+end_src
+* The main initialization (init.el): General Settings
+** File headers for init.el
+:PROPERTIES:
+:ID:       d43cbfbd-2e96-4c51-9785-84cbb498aa0f
+:CREATED:  [2025-01-02 Thu 03:03]
+:END:
+
+Lexical binding. It is supposed to provide optimization based on emacs documentation. No idea why that is the case. No harm keeping it though.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;;; -*- lexical-binding: t -*-
+#+end_src
+
+** Custom file
+:PROPERTIES:
+:ID:       03460f04-2a47-4054-9934-be8b447a8b7d
+:CREATED:  [2025-01-03 Fri 16:08]
+:END:
+I am not entirely sure what this does. Need to look at this further.
+*** TODO Look into what custom.el does
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (when (file-exists-p custom-file)
+    (load custom-file))
+#+end_src
+** Performance tweaking
+:PROPERTIES:
+:ID:       e0670db0-18f7-44a9-b89a-c9695567e246
+:CREATED:  [2025-01-03 Fri 19:54]
+:END:
+
+"read-process-output-max" has an impact on the performance of LSP. This setting is suggested in the LSP mode website. They also recommend that the "gc-cons-threshold" is also set at a higher value (around 100 mb as used by Spacemacs). Upon reading relevant conversations on the internet, I decided to not do this as the "gc-cons-percentage" seems to be a much better way to deal with this issue.
+
+"native-comp-always-compile" makes it so that all files are natively compiled or re-compiled unconditionally.
+
+"package-native-compile" makes sure packages are natively compiled during installation or ahead of time. If the value is nil, native compilation happens when the package is first loaded.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq read-process-output-max (* 1024 1024)) ;; 1 mb
+
+  (setq native-comp-always-compile t)
+  (setq package-native-compile t)
+#+end_src
+** Loading org to avoid long load time for org files
+:PROPERTIES:
+:ID:       4a6554ea-b036-4625-bdb4-9ea54312bb10
+:CREATED:  [2025-01-19 Sun 02:20]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (with-temp-buffer (org-mode))
+#+end_src
+** Record Personal info
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq user-mail-address "ashiq.niloy@outlook.com"
+        user-full-name "Md Ashiqur Rahman (Niloy)")
+#+end_src
+** Custom function - Easy reload init file
+:PROPERTIES:
+:ID:       2fbff228-c761-49f5-b628-661803678d9a
+:CREATED:  [2025-01-03 Fri 16:21]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (defun arn/reload-init-file ()
+    "Easily reload the init file after edits."
+    (interactive)
+    (load-file user-init-file))
+#+end_src
+** Setup package.el
+:PROPERTIES:
+:ID:       0a91ad9f-e93e-4dbb-bd95-c9369c0ff852
+:CREATED:  [2025-01-03 Fri 16:54]
+:END:
+*** Setting up package archives
+:PROPERTIES:
+:ID:       225d1d54-9543-48eb-ab5a-3cdaf7263963
+:CREATED:  [2025-01-03 Fri 16:55]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq package-archives
+        '(("melpa" . "https://melpa.org/packages/")
+          ("gnu" . "https://elpa.gnu.org/packages/")
+          ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+#+end_src
+*** Show only name in package list
+:PROPERTIES:
+:ID:       a3fe7632-a0f9-49d4-acc9-b6be22f70ec0
+:CREATED:  [2025-01-03 Fri 19:47]
+:END:
+
+This is a borrowed function from unknown source. This function cleans up the package name while viewing a package list by hiding the version number and other details, only showing the package list.
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package package
+    :defer t
+    :config
+    (defun unknown-just-package-names (fn &rest args)
+      (cl-letf (((symbol-function 'package-desc-full-name)
+                 (lambda (pkg) (symbol-name (package-desc-name pkg)))))
+        (apply fn args)))
+    (advice-add 'package-menu--list-to-prompt :around 'unknown-just-package-names))
+#+end_src
+
+** General key bindings
+:PROPERTIES:
+:ID:       75fac769-b082-492f-a4ed-d277c75e6a65
+:CREATED:  [2025-01-03 Fri 19:50]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package bind-key
+    ;; C-x prefix is for general commands
+    ;; C-c prefix is for current major mode commands
+    :bind
+    ("C-h y" . describe-personal-keybindings)
+    ("C-x SPC" . execute-extended-command)
+    ("<escape>" . keyboard-escape-quit)
+    ("C-g" . keyboard-quit)
+    ("C-x C-r" . arn/reload-init-file)
+    ("C-x k" . kill-current-buffer)
+    ("C-x C-k" . quit-window)) ;; see how a window can be closed. This one doesn't really close window
+#+end_src
+
+** Emacs documentation
+:PROPERTIES:
+:ID:       778829ca-9199-40e2-95f7-cf7c24405c2c
+:CREATED:  [2025-01-07 Tue 03:54]
+:END:
+
+Probably one of the significant differentiators of Emacs as a program is that the documentation for all the variables, keys and functions in Emacs are accessible inside the program. It is also self documenting meaning that anything and everything that is changes is reflected in this documentation.
+
+*** Helpful documentation
+:PROPERTIES:
+:ID:       d7171a9c-2841-40b5-b7ab-d71626a779a9
+:CREATED:  [2025-01-07 Tue 03:55]
+:END:
+
+This package provides a better formatting for the documenation pages.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package helpful
+    :ensure t)
+#+end_src
+** GUI customization
+:PROPERTIES:
+:ID:       0dc94050-54e5-4c9b-9246-2070a26ddb5d
+:CREATED:  [2025-01-03 Fri 16:11]
+:END:
+*** Customizing GUI Variables
+:PROPERTIES:
+:ID:       6b7eae84-f0c9-4c3e-81a2-4b59e17131f6
+:CREATED:  [2025-01-05 Sun 02:38]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (custom-set-variables
+   '(inhibit-startup-screen t)
+   '(initial-scratch-message nil)
+   '(menu-bar-mode nil)
+   '(tool-bar-mode nil)
+   '(scroll-bar-mode nil)
+   '(use-dialog-box nil)
+   '(ring-bell-function #'ignore)
+;;   '(cursor-type 'bar)
+   '(tab-bar-show nil)
+   '(tab-bar-close-button-show nil)
+   '(pixel-scroll-precision-mode t)
+   '(line-spacing .3))
+#+end_src
+
+*** Improved scrolling
+Needs to be implemented with the native vc-use-package setup for emacs-30
+#+begin_src emacs-lisp :tangle "init.el"
+;;  (use-package ultra-scroll
+;;    :vc (:fetcher github :repo jdtsmith/ultra-scroll)
+;;    :init
+;;    (setq scroll-conservatively 101 ; important!
+;;          scroll-margin 0) 
+;;    :config
+;;    (ultra-scroll-mode 1))
+
+#+end_src
+*** Spacious padding
+:PROPERTIES:
+:ID:       f8185ded-47c7-43e3-aebf-cb2a9a583a9f
+:CREATED:  [2025-01-05 Sun 02:39]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; more GUI
+  (use-package spacious-padding
+    :ensure t
+    :custom
+    (spacious-padding-widths
+     '( :internal-border-width 25
+        :header-line-width 4
+        :mode-line-width 3                ; half the default
+        :tab-width 4
+        :right-divider-width 15           ; half the default
+        :scroll-bar-width 8))
+    :init (spacious-padding-mode))
+#+end_src
+
+*** Fonts
+:PROPERTIES:
+:ID:       199f9a6d-925f-43fa-8ff7-f7895563a17b
+:CREATED:  [2025-01-05 Sun 02:40]
+:END:
+
+**** Install fonts
+:PROPERTIES:
+:ID:       3146e3f0-a10b-42d9-919a-47152b743dde
+:CREATED:  [2025-01-05 Sun 03:06]
+:BACKLINKS: [[id:70fe6549-ddff-4b42-82a9-c11d72409392][Supplementary setup:]]
+:END:
+
+This is one of the steps required for a new setup. The following fonts are to be installed:
+
+- *Commit Mono*: A customized version of the commit mono font named "CommitMonoarn". The customization is essentially just changing the "g" and "a" letters and using the alternative form offered.
+- *iA Writer Quattro V*: The variable font of Quattro by iA Writer.
+- *Kalpurush*: Font for writing in Bangla.
+- *Symbols Nerd Font Mono*: This is the font that is required for showing icons with Nerd Icons.
+
+All of the fonts here are free and can be downloaded by a simple search. I will probably keep a version of these saved in the emacs config repo. However, always good to use the updated version.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; setup default font
+  (add-to-list 'default-frame-alist '(font . "MartianMono Nerd Font" ))
+  (set-face-attribute 'default t :font "MartianMono Nerd Font" :height 100)
+
+  ;; setup variable pitch font
+  (custom-theme-set-faces
+   'user
+   '(fixed-pitch ((t (:family "MartianMono Nerd Font" :height 100))))
+   '(variable-pitch ((t (:family "Merriweather" :height 110)))))
+
+  ;; setup font for bengali
+  (set-fontset-font "fontset-default" 'bengali (font-spec :family "Noto Sans Bengali" :size 20))
+#+end_src
+
+**** Font ligatures
+:PROPERTIES:
+:ID:       93a4c068-a4bc-4c33-bafb-9047d077e675
+:CREATED:  [2025-01-07 Tue 03:11]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package ligature
+    :ensure t
+    :config
+    (let ((ligs '("->" "=>" "|>" "<|" "::" "<--" "-->" "<-->")))
+            (ligature-set-ligatures 'prog-mode ligs)
+            (ligature-set-ligatures 'org-mode ligs))
+    (global-ligature-mode t))
+
+#+end_src
+*** Theme
+:PROPERTIES:
+:ID:       ab8687c0-a17e-4078-a325-74ce2c1d2164
+:CREATED:  [2025-01-05 Sun 02:43]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package modus-themes
+    :ensure
+    :demand
+    :init
+    (require 'modus-themes)
+  
+    :config
+    (setq modus-themes-italic-constructs t
+          modus-themes-bold-constructs t
+          modus-themes-mixed-fonts t
+          modus-themes-variable-pitch-ui t
+          modus-themes-disable-other-themes t)
+
+    (setq modus-themes-headings
+          '((1 . (variable-pitch thin 1.6))
+            (2 . (variable-pitch thin 1.4))
+            (3 . (variable-pitch light 1.2))
+            (4 . (variable-pitch regular 1.1))
+            (5 . (variable-pitch bold 1.1))
+            (6 . (variable-pitch bold 1))))
+
+    (setq modus-themes-completions
+          '((matches . (bold underline))
+            (selection . (semibold italic))))
+
+    (load-theme 'modus-operandi-tinted t t)
+    (enable-theme 'modus-operandi-tinted))
+#+end_src
+
+*** Line numbers
+:PROPERTIES:
+:ID:       6e80ba04-da3e-48fa-9518-32bc76c1af28
+:CREATED:  [2025-01-05 Sun 02:55]
+:END:
+
+Custom function to ensure that line numbers are shown in modes such as: while coding. Other modes such as: org-mode, PDF etc are excluded from showing line numbers.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; line numbers
+  (column-number-mode)
+  (require 'display-line-numbers)
+  (defcustom display-line-numbers-exempt-modes
+    '(org-mode vterm-mode eshell-mode shell-mode term-mode ansi-term-mode pdf-view-mode)
+    "Major modes on which to disable line numbers."
+    :group 'display-line-numbers
+    :type 'list
+    :version "green")
+
+  (defun display-line-numbers--turn-on ()
+    "Turn on line numbers except for certain major modes.
+  Exempt major modes are defined in `display-line-numbers-exempt-modes'."
+    (unless (or (minibufferp)
+                (member major-mode display-line-numbers-exempt-modes))
+      (display-line-numbers-mode)))
+
+  (global-display-line-numbers-mode)
+  (setq display-line-numbers-type 'relative)
+#+end_src
+
+*** Transparency
+:PROPERTIES:
+:ID:       b2c3804e-4066-4700-beca-396bd573585c
+:CREATED:  [2025-01-05 Sun 02:57]
+:END:
+
+This doesn't seem to work with windows. I have gotten over the need for transparency as a whole to be honest. But if and when it is required, this is the way to set it up.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (set-frame-parameter nil 'alpha-background 100)
+  (add-to-list 'default-frame-alist '(alpha-background . 100))
+#+end_src
+
+*** Mode line
+:PROPERTIES:
+:ID:       7b1812ae-4630-41c5-b478-dd45e3040313
+:CREATED:  [2025-01-05 Sun 02:59]
+:END:
+
+**** Doom Mode line:
+:PROPERTIES:
+:ID:       2fe71080-f020-41d2-8897-c5d0a2b883a4
+:CREATED:  [2025-01-05 Sun 02:59]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package doom-modeline
+    :ensure t
+    :init (doom-modeline-mode 1)
+    :custom ((doom-modeline-height 5)))
+#+end_src
+
+**** Suppress minor modes on mode line:
+:PROPERTIES:
+:ID:       d5a0089d-984c-4ab8-a954-4ef9c19933c3
+:CREATED:  [2025-01-05 Sun 03:01]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package diminish :ensure t :defer t)
+#+end_src
+
+** Text-editing customization
+:PROPERTIES:
+:ID:       11dfb6c0-4189-4cb1-a827-9ec135ba1eac
+:CREATED:  [2025-01-03 Fri 16:12]
+:END:
+
+*** Customizing text-editing variables
+:PROPERTIES:
+:ID:       7a7a01ea-c2ee-4fe6-a4e0-fb02a2ff5876
+:CREATED:  [2025-01-07 Tue 03:14]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (custom-set-variables
+   '(indent-tabs-mode nil)
+   '(delete-selection-mode t))
+
+  (setq tab-always-indent 'complete)
+#+end_src
+*** Auto parentheses
+:PROPERTIES:
+:ID:       02f1dad5-305f-47a8-9a70-115acff04fcf
+:CREATED:  [2025-01-07 Tue 03:15]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package
+   elec-pair
+   :config ;; Disable electric pair in minibuffer
+   (defun arn/inhibit-electric-pair-mode (char)
+     (or (minibufferp) (electric-pair-conservative-inhibit char)))
+   (setq electric-pair-inhibit-predicate
+         #'arn/inhibit-electric-pair-mode)
+
+   (electric-pair-mode t)
+   ;; The ‘<’ and ‘>’ are not ‘parenthesis’, so give them no completion.
+   (setq electric-pair-inhibit-predicate
+         (lambda (c)
+           (or (member c '(?< ?> ?~))
+               (electric-pair-default-inhibit c)))))
+
+  (setq show-paren-context-when-offscreen t)
+  (setq show-paren-style 'mixed)
+
+  ;; Treat ‘<’ and ‘>’ as if they were words, instead of ‘parenthesis’.
+  (modify-syntax-entry ?< "w<")
+  (modify-syntax-entry ?> "w>")
+
+  ;; Show matching parens
+  (setq show-paren-delay 0)
+  (show-paren-mode t)
+#+end_src
+** Recent files
+:PROPERTIES:
+:ID:       a37f6db8-0c08-4f43-abf6-92538912aff9
+:CREATED:  [2025-01-05 Sun 03:02]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package recentf
+    :config
+    (setq recentf-max-saved-items 200
+          recentf-auto-cleanup 360
+          recentf-show-file-shortcuts-flag nil)
+    (recentf-mode 1))
+#+end_src
+
+** Anti-littering
+:PROPERTIES:
+:ID:       f79e4ca7-0be9-4495-a776-694eb5482345
+:CREATED:  [2025-01-05 Sun 03:03]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package no-littering
+    :ensure t
+    :config
+    (require 'recentf)
+    (add-to-list 'recentf-exclude no-littering-var-directory)
+    (add-to-list 'recentf-exclude no-littering-etc-directory)
+
+    ;; Move this in its own thing
+    (setq
+     create-lockfiles nil
+     delete-old-versions t
+     kept-new-versions 6
+     kept-old-versions 2
+     version-control t)
+
+    (setq
+     backup-directory-alist
+     `((".*" . ,(no-littering-expand-var-file-name "backup/")))
+     auto-save-file-name-transforms
+     `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
+#+end_src
+
+* Completion
+:PROPERTIES:
+:ID:       8d4e0b80-12b8-47ec-9808-fc95ee4b021f
+:CREATED:  [2025-01-07 Tue 03:11]
+:END:
+** Mini-buffer completion with Vertico
+:PROPERTIES:
+:ID:       f53ea888-45b3-4fee-9d53-d03b8ec0a879
+:CREATED:  [2025-01-07 Tue 03:11]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package vertico
+    :ensure t
+    :init (vertico-mode)
+    :config
+    (setq vertico-cycle t))
+#+end_src
+*** Save completion history with savehist
+:PROPERTIES:
+:ID:       0d51774b-d40e-4929-9fa5-871d185331bc
+:CREATED:  [2025-01-07 Tue 03:11]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package savehist
+    :ensure t
+    :init
+    (savehist-mode))
+#+end_src
+*** Show additional info in Minibuffer completion with Marginalia
+:PROPERTIES:
+:ID:       b93d6b9a-66f9-41ee-bf04-4b88b1abbc89
+:CREATED:  [2025-01-07 Tue 03:11]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package marginalia
+    :ensure t
+    :custom
+    (marginalia-align 'right)
+    :init
+    (marginalia-mode))
+
+#+end_src
+** In-buffer completion with Corfu
+:PROPERTIES:
+:ID:       e8cb7df3-1e62-4eb5-9527-9efa74336e6b
+:CREATED:  [2025-01-07 Tue 03:11]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; setup keybindings such as tab for accepting a completing and way for navigating with C-j and C-k
+  ;; setup keybinding for corfu quit maybe
+  (use-package corfu
+    :ensure t
+    :hook (lsp-completion-mode . arn/corfu-setup-lsp)
+    :custom
+    (corfu-auto t)
+    (corfu-auto-prefix 2)
+    (corfu-auto-delay 0.0)
+    (corfu-quit-at-boundary 'separator)
+    (corfu-echo-documentation 0.25)
+    (lsp-completion-provider :none)
+    :init
+    (global-corfu-mode)
+    :config
+  
+    ;; Setup lsp to use corfu for lsp completion
+    (defun arn/corfu-setup-lsp ()
+      "Use orderless completion style with lsp-capf instead of the
+  default lsp-passthrough."
+      (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+            '(orderless))))
+#+end_src
+*** Provide in-buffer completion data to Corfu with Cape
+:PROPERTIES:
+:ID:       0a3e84a8-03b2-489a-8521-9787d3e29b43
+:CREATED:  [2025-01-07 Tue 03:12]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package cape
+    :ensure t
+    :hook (lsp-completion-mode . arn/cape-capf-setup-lsp)
+    :init
+    (add-to-list 'completion-at-point-functions #'cape-file)
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+    ;; lsp capf
+    (defun arn/cape-capf-setup-lsp ()
+      "Replace the default `lsp-completion-at-point' with its
+  `cape-capf-buster' version. Also add `cape-file' and
+  `cape-dabbrev' or other backends."
+      (setf (elt (cl-member 'lsp-completion-at-point completion-at-point-functions) 0)
+            (cape-capf-buster #'lsp-completion-at-point))
+      ;;(add-to-list 'completion-at-point-functions (cape-company-to-capf #'company-yasnippet))
+      (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
+      (add-to-list 'completion-at-point-functions #'cape-file)))
+#+end_src
+** Completion style: Orderless
+:PROPERTIES:
+:ID:       8d08bbfd-6376-4d8a-897d-35fdae4fefb3
+:CREATED:  [2025-01-07 Tue 03:12]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package orderless
+    :ensure t
+    :custom
+    (completion-styles '(orderless)))
+#+end_src
+** Icons for completion with Nerd Icons
+:PROPERTIES:
+:ID:       0dcfbb15-7dd7-440a-866b-02effadb1130
+:CREATED:  [2025-01-07 Tue 03:12]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package nerd-icons
+    :ensure t
+    :custom
+    (nerd-icons-font-family "Symbols Nerd Font Mono"))
+
+  (use-package nerd-icons-completion
+    :ensure t
+    :after marginalia
+    :config
+    (nerd-icons-completion-mode)
+    (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+  (use-package nerd-icons-corfu
+    :ensure t
+    :config
+    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
+  (use-package nerd-icons-dired
+    :ensure t
+    :hook
+    (dired-mode . nerd-icons-dired-mode))
+#+end_src
+** Completion for key bindings with which-key
+:PROPERTIES:
+:ID:       83fbef1b-c23c-4451-9823-f9162ecf0785
+:CREATED:  [2025-01-07 Tue 03:25]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+    (use-package which-key
+  ;; which-key should be natively supported in emacs 30    
+  ;;    :ensure t
+      :diminish which-key-mode
+      :config
+      (which-key-mode +1)
+      (setq which-key-idle-delay 0.4
+            which-key-idle-secondary-delay 0.4))
+  
+
+#+end_src
+** Customizing variables relevant to completion
+:PROPERTIES:
+:ID:       4f88f906-e69d-4497-a983-7729ca3639c6
+:CREATED:  [2025-01-07 Tue 03:25]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq completion-cycle-threshold 3)
+#+end_src
+* Enhance functionality of Emacs
+:PROPERTIES:
+:ID:       d41e5e29-bff2-4fb7-b47a-51e2555bdc32
+:CREATED:  [2025-01-07 Tue 03:22]
+:END:
+** With Consult
+:PROPERTIES:
+:ID:       9b14db39-56fc-49bf-8ff5-3ec38eedc06b
+:CREATED:  [2025-01-07 Tue 03:22]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package consult
+    :ensure t
+    :init
+    :bind
+    ("C-x C-/" . consult-line)
+    ("C-x C-b" . consult-buffer))
+#+end_src
+*** TODO Explore the consult package to see what else is possible
+*** TODO Put the code for consult ripgrep all here.
+** With Embark
+:PROPERTIES:
+:ID:       37bfae03-e777-425d-b7cd-8d36dc828832
+:CREATED:  [2025-01-07 Tue 03:22]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package embark
+    :ensure t
+    :init
+    (setq prefix-help-command #'embark-prefix-help-command)
+    (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+    :bind
+    (("C-." . embark-act)
+     ("C-;" . embark-dwim))
+    :config
+    (add-to-list 'display-buffer-alist
+                 '("\\'\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                   nil
+                   (window-parameters (mode-line-format . none)))))
+#+end_src
+**** TODO Explore the embark package to see what else is possible
+** Using Consult and Embark together
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package embark-consult
+    :ensure t
+    :defer t
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+* Using Emacs as an archiving tool
+:PROPERTIES:
+:ID:       6993f546-26cc-4489-9314-e8f9da7d680e
+:CREATED:  [2025-01-13 Mon 04:18]
+:END:
+** Search everything
+:PROPERTIES:
+:ID:       5f6b809c-5e15-453d-95c6-2a00f12983a7
+:CREATED:  [2025-01-13 Mon 04:19]
+:BACKLINKS: [[id:b9ec6fe4-57d8-469f-9832-44d474129bc9][Install Pandoc]]
+:END:
+For this purpose, the "ripgrep-all" and "fzf" programs, it is possible to fuzzy search virtually any text within any kind of documents. Here, emacs will be used as a frontend for these programs. They can be used with terminal as well. For combining the "rga" and "fzf" program, rga-fzf command can be used. This is a command that is provided by the "ripgrep-all" program.
+
+"rga" and "fzf" needs to be installed separately for this to work.
+
+*** rga-fzf for Windows
+:PROPERTIES:
+:ID:       6f525c24-714d-4e3a-80fa-4baecb1f05a9
+:CREATED:  [2025-01-13 Mon 04:19]
+:END:
+
+rga documentation recommends installation using scoop. "scoop install rga" and "scoop install fzf" should do everything required for the setup. Additionally, all scoop programs need to be put in path of emacs.
+
+*** rg.el package (not working in Windows with this config)
+:PROPERTIES:
+:ID:       cc3374c1-ddef-4001-937a-057b38a19583
+:CREATED:  [2025-01-15 Wed 03:24]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+;;  (use-package rg
+;;    :ensure t
+;;    :config
+    ;; because rga and fzf was installed via scoop
+;;    (setenv "PATH" (concat "C:/Users/ashiq/scoop/shims/" ";" (getenv "PATH")))
+;;    (setq rg-executable (executable-find "rga-fzf")))
+#+end_src
+*** consult-ripgrep-all
+:PROPERTIES:
+:ID:       ba35ed29-0635-4bee-bc43-510770ab9e9c
+:CREATED:  [2025-01-19 Sun 01:37]
+:END:
+
+This is a block of code that is supposed to make the "consult" package to use ripgrep-all to search through everything in a directory.
+
+This is still has the problem that when the preview is shown or a PDF is opened, it cannot direct to the exact location in the PDF. Rather merely shows the first page of the PDF only.
+
+This code also uses fuzzy finding with fzf with the executable "rga-fzf".
+
+This is needs to be explored how this issue can be solved.
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; (defun consult--ripgrep-all-transformer (result)
+  ;; "Transform ripgrep-all result to handle PDF page numbers."
+  ;; (when result
+  ;;   (let* ((parts (split-string result ":"))
+  ;;          (file (car parts))
+  ;;          (line-or-page (cadr parts))
+  ;;          (is-pdf (string-match-p "\\.pdf$" file)))
+  ;;     (if is-pdf
+  ;;         ;; For PDFs, extract page number from line-or-page
+  ;;         (cons (format "%s:page %s:%s" 
+  ;;                      file 
+  ;;                      line-or-page 
+  ;;                      (string-join (cddr parts) ":"))
+  ;;               (list :pdf-page (string-to-number line-or-page)
+  ;;                     :file file))
+  ;;       ;; For non-PDFs, keep original format
+  ;;       result))))
+
+  ;; (defun consult--ripgrep-all-action (result)
+  ;; "Action to take when selecting a search result."
+  ;; (when result
+  ;;   (if (and (consp result) (plist-get (cdr result) :pdf-page))
+  ;;       ;; Handle PDF files
+  ;;       (let ((file (plist-get (cdr result) :file))
+  ;;             (page (plist-get (cdr result) :pdf-page)))
+  ;;         (find-file file)
+  ;;         (when (and page (fboundp 'pdf-view-goto-page))
+  ;;           (pdf-view-goto-page page)))
+  ;;     ;; Handle non-PDF files (using default behavior)
+  ;;     (consult--jump
+  ;;      (consult--marker-from-line-listing result)))))
+
+  ;; (defcustom consult-ripgrep-all-args
+  ;;   "rga-fzf --null --line-buffered --color=never --max-columns=1000 --path-separator /\  --smart-case --no-heading --with-filename --line-number"
+  ;;   "Command line arguments for ripgrep, see `consult-ripgrep-all'.
+  ;; The dynamically computed arguments are appended.
+  ;; Can be either a string, or a list of strings or expressions."
+  ;;   :type '(choice string (repeat (choice string expression))))
+
+
+  ;; (defun consult--ripgrep-all-make-builder (paths)
+  ;;   "Create ripgrep command line builder given PATHS."
+  ;;   (let* ((cmd (consult--build-args consult-ripgrep-all-args))
+  ;;          (type (if (consult--grep-lookahead-p (car cmd) "-P") 'pcre 'extended)))
+  ;;     (lambda (input)
+  ;;       (pcase-let* ((`(,arg . ,opts) (consult--command-split input))
+  ;;                    (flags (append cmd opts))
+  ;;                    (ignore-case
+  ;;                     (and (not (or (member "-s" flags) (member "--case-sensitive" flags)))
+  ;;                          (or (member "-i" flags) (member "--ignore-case" flags)
+  ;;                              (and (or (member "-S" flags) (member "--smart-case" flags))
+  ;;                                   (let (case-fold-search)
+  ;;                                     ;; Case insensitive if there are no uppercase letters
+  ;;                                     (not (string-match-p "[[:upper:]]" arg))))))))
+  ;;         (if (or (member "-F" flags) (member "--fixed-strings" flags))
+  ;;             (cons (append cmd (list "-e" arg) opts paths)
+  ;;                   (apply-partially #'consult--highlight-regexps
+  ;;                                    (list (regexp-quote arg)) ignore-case))
+  ;;           (pcase-let ((`(,re . ,hl) (funcall consult--regexp-compiler arg type ignore-case)))
+  ;;             (when re
+  ;;               (cons (append cmd (and (eq type 'pcre) '("-P"))
+  ;;                             (list "-e" (consult--join-regexps re type))
+  ;;                             opts paths)
+  ;;                     hl))))))))
+
+  ;; ;;;###autoload
+  ;; (defun consult-ripgrep-all (&optional dir initial)
+  ;;   "Search with `rga' for files in DIR where the content matches a regexp.
+  ;; The initial input is given by the INITIAL argument. See `consult-grep'
+  ;; for more details."
+  ;;   (interactive "P")
+  ;;   (let ((prompt "Ripgrep-all: "))
+  ;;   (consult--grep prompt #'consult--ripgrep-all-make-builder dir initial
+  ;;                  :add-transforms (list #'consult--ripgrep-all-transformer)
+  ;;                  :add-actions (list #'consult--ripgrep-all-action))))
+#+end_src
+** Wgrep to edit grep files
+:PROPERTIES:
+:ID:       7871a4a5-7e39-497c-898d-dfebab3fe555
+:CREATED:  [2025-01-20 Mon 13:11]
+:END:
+* Org-mode
+:PROPERTIES:
+:ID:       71e07010-2396-4bc3-b49f-1a953391a7a7
+:CREATED:  [2025-01-07 Tue 03:51]
+:END:
+** Customizing org mode variables
+:PROPERTIES:
+:ID:       9638d8b2-5e71-4b7c-9f12-269b51f297ce
+:CREATED:  [2025-01-09 Thu 02:47]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (defun arn/org-mode-setup ()
+        (org-indent-mode)
+        (variable-pitch-mode 1)
+        (visual-line-mode 1))
+
+  (use-package org
+      :hook (org-mode . arn/org-mode-setup)
+      :config
+      (setq org-ellipsis "▾ "
+            org-hide-emphasis-markers t
+            org-support-shift-select t)
+      (setq-default org-startup-indented t
+                    org-pretty-entities t
+                    org-use-sub-superscripts "{}"
+                    org-startup-with-inline-images t
+                    org-image-actual-width '(300)))
+#+end_src
+** Cleanup org-mode UI with org-modern
+:PROPERTIES:
+:ID:       08910869-5025-44f9-9e88-2017137eae97
+:CREATED:  [2025-01-09 Thu 02:51]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package org-modern
+    :ensure t
+    :after org
+    :demand t
+    :custom
+    (org-modern-star 'replace)
+    :custom-face
+    (org-modern-label
+     ((t :height 0.8 :width condensed :weight regular
+         :underline nil :inherit fixed-pitch)))
+    :config
+    (setq org-modern-label-border nil)
+    (global-org-modern-mode))
+#+end_src
+** Enhance functionality of Org-mode
+:PROPERTIES:
+:ID:       822ccc00-a380-4022-b4a0-d7ecc95dec2a
+:CREATED:  [2025-01-09 Thu 02:53]
+:END:
+*** PKM with Org-Node
+Previously I have used Org-roam for this purpose. However, I find the org-node package to be simpler to understand and it (apparently) provides better performance than Org-roam.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package org-node
+    :ensure t
+    :after org
+    :config
+    (org-node-cache-mode)
+    ;; prints all backlinks in the node file
+    (org-node-backlink-mode)
+    ;; proactively updates backlinks when there is a change
+    (setq org-node-backlink-aggressive t)
+    ;; not sure what this extra-dirs does. But it seems to solve the problem when an ID is not found
+  ;;  (setq org-node-extra-id-dirs
+  ;;        '("D:/arn-org/"))
+    ;; system for using org-capture and also provide that an ID
+    (setq org-capture-templates
+        '(("i" "Capture into ID node"
+           plain (function org-node-capture-target) nil
+           :empty-lines-after 1)
+
+          ("j" "Jump to ID node"
+           plain (function org-node-capture-target) nil
+           :jump-to-captured t
+           :immediate-finish t)
+
+          ;; Sometimes handy after `org-node-insert-link', to
+          ;; make a stub you plan to fill in later, without
+          ;; leaving the current buffer for now
+          ("s" "Make quick stub ID node"
+           plain (function org-node-capture-target) nil
+           :immediate-finish t)))
+    ;; provide completion
+    (org-node-complete-at-point-mode)
+    ;; in case nodes with the same name exists
+    (setq org-node-alter-candidates t)
+    :bind
+    ("C-c nf" . org-node-find)
+    ("C-c ni" . org-node-insert-link)
+    ("C-c ns" . org-node-grep)
+    ;; extract a heading to a new file and node
+    ("C-c nc" . org-node-extract-subtree)
+    ;; provide an ID to a heading
+    ("C-c nn" . org-node-nodeify-entry)
+    ;; rename an asset and update links. Only works in the directory chosen. Best to keep all assets in the same root directory. Has to be explored how to make sure this works
+    ("C-c ar" . org-node-rename-asset-and-rewrite-links))
+#+end_src
+** Automatically tangle org-babel code
+:PROPERTIES:
+:ID:       3980305f-7319-4dcd-be7e-7be4c1b56c4c
+:CREATED:  [2025-01-09 Thu 02:57]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package org-auto-tangle
+    :ensure t
+    :hook (org-mode . org-auto-tangle-mode))
+
+#+end_src
+* Support for document formats
+:PROPERTIES:
+:ID:       510e062d-229e-4cef-84f4-9230e916d11c
+:CREATED:  [2025-01-07 Tue 03:27]
+:END:
+** Support for PDF with PDF-tools
+:PROPERTIES:
+:ID:       a5dc5189-369e-4a70-884d-c658b942e6d0
+:CREATED:  [2025-01-07 Tue 03:27]
+:END:
+PDF tools uses a separate program called epdfinfo that uses a library called Poppler to read data from PDF. On Linux systems (maybe also MacOS), merely installing the package PDF-tools in Emacs installs these programs automatically and doesn't require any manual intervention. On Windows, this program has to be installed separately and some additional config is required.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; (use-package pdf-tools
+  ;;   :ensure t
+  ;;   :init
+  ;;   ;; required for Windows systems
+  ;;   (setenv "PATH" (concat "C:/msys64/mingw64/bin/" ";" (getenv "PATH")))
+  ;;   (pdf-tools-install)
+  ;;   :custom
+  ;;   ;; required for Windows systems
+  ;;   (pdf-info-epdfinfo-program "C:/msys64/mingw64/bin/epdfinfo.exe"))
+#+end_src
+
+*** PDF-tools on Windows
+:PROPERTIES:
+:ID:       0c11cc3f-3468-401a-beb9-1f2772424af1
+:CREATED:  [2025-01-07 Tue 03:35]
+:END:
+
+For Windows systems, some additional steps are required. As mentioned in the [[id:e372e95b-8f96-496b-a023-651e8a9a54f5][Installation]] section particularly for [[id:7a3dd237-e584-4631-9fb7-37747c36a67b][Windows]] systems, The MSYS2 distribution of Emacs is used and most programs necessary for [[id:70fe6549-ddff-4b42-82a9-c11d72409392][Supplementary setup]] is also installed using MSYS2 distribution. Similarly, the mingw64 package of epdfinfo needs to be installed. Additionally, 
+*** TODO Figure out how to do config based on OS >> Move to General Settings
+- So that when the config file is installed, the correct config is applied automatically in Emacs based on the OS.
+
+*** Org-noter for PDF annotation
+:PROPERTIES:
+:ID:       ccf28e3f-ee30-4933-ad5f-d2ed479e5745
+:CREATED:  [2025-01-07 Tue 03:52]
+:END:
+
+*** Org-pdftools for "org-store-link" with PDF files
+:PROPERTIES:
+:ID:       48abb78d-59c3-43ba-9db9-6bf32f831b12
+:CREATED:  [2025-01-07 Tue 03:52]
+:END:
+* End of initialization file
+#+begin_src emacs-lisp :tangle "init.el"
+  (provide 'init)
+  ;;; init.el ends here
+#+end_src
