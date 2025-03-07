@@ -207,5 +207,5 @@ pkill -f swayidle
 swayidle -w \
 timeout 300 'swaylock -f -i $lockscreen' \
 timeout 600 'wlopm --off \*;swaylock -F -i $lockscreen resume 'wlopm --on\*' \
-before-sleep 'swaylock -f -i $lockscreen ' &'
+before-sleep 'swaylock -f -i $lockscreen ' &
 
