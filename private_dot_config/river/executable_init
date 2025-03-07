@@ -16,9 +16,6 @@ riverctl map normal Super+Shift Return spawn foot
 # launcher
 riverctl map normal Super+Shift Space spawn "rofi -show drun"
 
-# Execute init script
-riverctl map normal Super+Shift R spawn '~/.config/river/init'
-
 # Super+Q to close the focused view
 riverctl map normal Super Q close
 
@@ -199,8 +196,7 @@ exec gnome-keyring-daemon --start --components=secrets
 exec /usr/libexec/pam_kwallet_init
 
 # Wallpaper
-pkill -f swaybg
-swaybg -m fill -i ~/Pictures/Wallpapers/bridge.jpg
+swaybg -i ~/Pictures/Wallpapers/bridge.jpg
 
 export lockscreen='~/Pictures/Wallpapers/pier.jpg'
 
