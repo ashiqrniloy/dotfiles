@@ -11,6 +11,11 @@
 # Note: the "Super" modifier is also known as Logo, GUI, Windows, Mod4, etc.
 
 # Super+Shift+Return to start an instance of foot
+
+# Wallpaper
+swaybg -m fill -i /home/arn/Pictures/Wallpapers/bridge.jpg
+
+
 riverctl map normal Super+Shift Return spawn foot
 
 # launcher
