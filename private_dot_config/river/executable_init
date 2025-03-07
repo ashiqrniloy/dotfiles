@@ -13,7 +13,7 @@
 # Super+Shift+Return to start an instance of foot
 
 # Wallpaper
-swaybg -m fill -i /home/arn/Pictures/Wallpapers/bridge.jpg
+swaybg -m fill -i /home/arn/Pictures/Wallpapers/bridge.jpg &
 
 
 riverctl map normal Super+Shift Return spawn foot
