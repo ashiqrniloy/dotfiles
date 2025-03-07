@@ -198,3 +198,16 @@ exec dbus-update-activation-environment --all
 exec gnome-keyring-daemon --start --components=secrets
 exec /usr/libexec/pam_kwallet_init
 
+# Wallpaper
+pkill -f swaybg
+swaybg -m fill -i ~/Pictures/Wallpapers/bridge.jpg
+
+export lockscreen='~/Pictures/Wallpapers/pier.jpg'
+
+# Idle Management
+pkill -f swayidle
+swayidle -w \
+timeout 300 'swaylock -f -i $lockscreen' \
+timeout 600 'wlopm --off \*;swaylock -F -i $lockscreen resume 'wlopm --on\*' \
+before-sleep 'swaylock -f -i $lockscreen ' &'
+
