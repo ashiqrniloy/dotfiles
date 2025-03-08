@@ -2,13 +2,13 @@
 #+AUTHOR: Niloy Rahman
 #+EMAIL: ashiq.r.niloy@gmail.com
 #+auto_tangle: t
-macro: latest-export-date (eval (format-time-string "%F %T %z"))
+#+macro: latest-export-date (eval (format-time-string "%F %T %z"))
 #+macro: word-count (eval (count-words (point-min) (point-max)))
 
 *Last revised and exported on {{{latest-export-date}}} with a word
 count of {{{word-count}}}.*
 
-This is the literate config of emacs. The reason this is not a simple init.el file is that for emacs to work properly, especially in different operating systems, different setup for the computer is required. For example: a program has to be installed or specific path needs to be added to exec-path etc. This seems particularly important now that I am using emacs on Windows and there seem to a lot of quirks that need to be figured out.
+This is the literate config of emacs. The reason this is not a simple init.el file is that for emacs to work properly, especially in different operating systems, different setup for the computer is required. For example: a program has to be installed or specific path needs to be added to exec-path etc. This seems particularly important now that I am using emacs on Windows and there seem to a lot of quirks that need to be figured out. 
 
 Following are some specific benefits of having this file:
 - This file can act as a setup documentation for future installations
@@ -39,7 +39,7 @@ This section is to give credit to the configuration files and their authors that
 :CREATED:  [2025-01-02 Thu 02:26]
 :END:
 
-This section provides some conventions followed for this configuration. Following is a non-comprehensive list.
+This section provides some conventions followed for this configuration. Following is a non-comprehensive list. 
 
 1. Functions and variables that start with "arn" are generally written by me.
 2. There are cases where I copied a function and did not keep the name of the person who wrote the function. In such cases, I have used the prefix "unknown."
@@ -90,7 +90,7 @@ For now, I have been using the mingw64 package for emacs installed through MSYS2
 :CREATED:  [2025-01-19 Sun 17:40]
 :END:
 
-Pandoc is an essential program for document format conversion. This will be essential when trying to view file formats such as: docx in emacs. Mostly useful for [[id:5f6b809c-5e15-453d-95c6-2a00f12983a7][Search everything]] for archiving functionality.
+Pandoc is an essential program for document format conversion. This will be essential when trying to view file formats such as: docx in emacs. Mostly useful for the [[id:5f6b809c-5e15-453d-95c6-2a00f12983a7][Search everything]] functionality implementation.
 
 
 * Early Initialization (early-init.el)
@@ -161,10 +161,12 @@ For LSP-mode, the following config is recommended in their documentation to enha
 #+end_src
 
 ** Setting the default font before emacs frame is created
+This is required because when emacs loads, the font looks too large. This is only fixed after the init.el file is re-evaluated. This code in the early-init solves this issue.
 #+begin_src emacs-lisp :tangle "early-init.el"
     ;; setup default font
   (add-to-list 'default-frame-alist '(font . "MartianMono" ))
   (set-face-attribute 'default t :font "MartianMono" :height 100)
+  
 #+end_src
 ** Early Initialization end:
 #+begin_src emacs-lisp :tangle "early-init.el"
@@ -394,11 +396,7 @@ This is one of the steps required for a new setup. The following fonts are to be
 All of the fonts here are free and can be downloaded by a simple search. I will probably keep a version of these saved in the emacs config repo. However, always good to use the updated version.
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; setup default font
-  (add-to-list 'default-frame-alist '(font . "MartianMono" ))
-  (set-face-attribute 'default t :font "MartianMono" :height 100)
-
-  ;; setup variable pitch font
+    ;; setup variable pitch font
   (custom-theme-set-faces
    'user
    '(fixed-pitch ((t (:family "MartianMono" :height 100))))
@@ -455,8 +453,8 @@ All of the fonts here are free and can be downloaded by a simple search. I will 
           '((matches . (bold underline))
             (selection . (semibold italic))))
 
-    (load-theme 'modus-operandi-tinted t t)
-    (enable-theme 'modus-operandi-tinted))
+    (load-theme 'modus-vivendi t t)
+    (enable-theme 'modus-vivendi))
 #+end_src
 
 *** Line numbers
@@ -498,8 +496,18 @@ Custom function to ensure that line numbers are shown in modes such as: while co
 This doesn't seem to work with windows. I have gotten over the need for transparency as a whole to be honest. But if and when it is required, this is the way to set it up.
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (set-frame-parameter nil 'alpha-background 100)
-  (add-to-list 'default-frame-alist '(alpha-background . 100))
+  (set-frame-parameter nil 'alpha-background 60)
+  (add-to-list 'default-frame-alist '(alpha-background . 60))
+  (add-to-list 'pop-up-frame-alist '(alpha-background . 100))
+#+end_src
+
+#+begin_src emacs-lisp :tangle "init.el"
+    (defun arn/make-frame-transparent ()
+      "Function to make the frame transparent"
+      (interactive)
+      (set-frame-parameter nil 'alpha-background 60)
+      (add-to-list 'default-frame-alist '(alpha-background . 60))
+      (add-to-list 'pop-up-frame-alist '(alpha-background . 100)))
 #+end_src
 
 *** Mode line
@@ -677,51 +685,71 @@ This doesn't seem to work with windows. I have gotten over the need for transpar
 #+begin_src emacs-lisp :tangle "init.el"
   ;; setup keybindings such as tab for accepting a completing and way for navigating with C-j and C-k
   ;; setup keybinding for corfu quit maybe
-  (use-package corfu
-    :ensure t
-    :hook (lsp-completion-mode . arn/corfu-setup-lsp)
-    :custom
-    (corfu-auto t)
-    (corfu-auto-prefix 2)
-    (corfu-auto-delay 0.0)
-    (corfu-quit-at-boundary 'separator)
-    (corfu-echo-documentation 0.25)
-    (lsp-completion-provider :none)
-    :init
-    (global-corfu-mode)
-    :config
-  
-    ;; Setup lsp to use corfu for lsp completion
-    (defun arn/corfu-setup-lsp ()
-      "Use orderless completion style with lsp-capf instead of the
-  default lsp-passthrough."
-      (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-            '(orderless))))
+  ;; (use-package corfu
+  ;;   :ensure t
+  ;;   :hook (lsp-completion-mode . arn/corfu-setup-lsp)
+  ;;   :custom
+  ;;   (corfu-auto t)
+  ;;   (corfu-auto-prefix 2)
+  ;;   (corfu-auto-delay 0.0)
+  ;;   (corfu-quit-at-boundary 'separator)
+  ;;   (corfu-echo-documentation 0.25)
+  ;;   (lsp-completion-provider :none)
+
+  ;;   :init
+  ;;   (global-corfu-mode)
+    
+  ;;   :config
+  ;;   ;; Setup lsp to use corfu for lsp completion
+  ;;   (defun arn/corfu-setup-lsp ()
+  ;;     "Use orderless completion style with lsp-capf instead of the
+  ;; default lsp-passthrough."
+  ;;     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+  ;;           '(orderless))))
 #+end_src
+
+** In buffer completion with Company mode
+:PROPERTIES:
+:ID:       566f7820-9af5-4a33-9714-ae5d67f763e0
+:CREATED:  [2025-03-09 Sun 01:52]
+:END:
+For in buffer completion, Company mode provides a lot more options. For example: it can provide completion for python notebooks that work with ipython kernel. Also for Bengali writing this would be useful. However, the main reason to explore this is aesthetic. For Corfu the problem of child frame being transparent is a bad user experience. Exploring if Company mode is a good replacement for Corfu.
+
+The company mode overlay doesn't look that good either. Mostly because it somehow changes the main buffer a little bit making it a bit wonky to use.
+
+However, I think the main advantage of using company is that it provides a lot of third party backends such as: latex, yasnippet etc. For now I think it is best to go with company for these reasons.
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package company
+    :ensure t
+    :config
+    (add-hook 'after-init-hook 'global-company-mode))
+#+end_src
+
 *** Provide in-buffer completion data to Corfu with Cape
 :PROPERTIES:
 :ID:       0a3e84a8-03b2-489a-8521-9787d3e29b43
 :CREATED:  [2025-01-07 Tue 03:12]
 :END:
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package cape
-    :ensure t
-    :hook (lsp-completion-mode . arn/cape-capf-setup-lsp)
-    :init
-    (add-to-list 'completion-at-point-functions #'cape-file)
-    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-    (add-to-list 'completion-at-point-functions #'cape-elisp-block)
-    ;; lsp capf
-    (defun arn/cape-capf-setup-lsp ()
-      "Replace the default `lsp-completion-at-point' with its
-  `cape-capf-buster' version. Also add `cape-file' and
-  `cape-dabbrev' or other backends."
-      (setf (elt (cl-member 'lsp-completion-at-point completion-at-point-functions) 0)
-            (cape-capf-buster #'lsp-completion-at-point))
-      ;;(add-to-list 'completion-at-point-functions (cape-company-to-capf #'company-yasnippet))
-      (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
-      (add-to-list 'completion-at-point-functions #'cape-file)))
+  ;; (use-package cape
+  ;;   :ensure t
+  ;;   :hook (lsp-completion-mode . arn/cape-capf-setup-lsp)
+  ;;   :init
+  ;;   (add-to-list 'completion-at-point-functions #'cape-file)
+  ;;   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  ;;   (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+  ;;   ;; lsp capf
+  ;;   (defun arn/cape-capf-setup-lsp ()
+  ;;     "Replace the default `lsp-completion-at-point' with its
+  ;; `cape-capf-buster' version. Also add `cape-file' and
+  ;; `cape-dabbrev' or other backends."
+  ;;     (setf (elt (cl-member 'lsp-completion-at-point completion-at-point-functions) 0)
+  ;;           (cape-capf-buster #'lsp-completion-at-point))
+  ;;     ;;(add-to-list 'completion-at-point-functions (cape-company-to-capf #'company-yasnippet))
+  ;;     (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
+  ;;     (add-to-list 'completion-at-point-functions #'cape-file)))
 #+end_src
+Removing this code as it works with Corfu. With Company mode this most probably not necessary.
 ** Completion style: Orderless
 :PROPERTIES:
 :ID:       8d08bbfd-6376-4d8a-897d-35fdae4fefb3
@@ -751,17 +779,45 @@ This doesn't seem to work with windows. I have gotten over the need for transpar
     (nerd-icons-completion-mode)
     (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
-  (use-package nerd-icons-corfu
-    :ensure t
-    :config
-    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+  ;; (use-package nerd-icons-corfu
+  ;;   :ensure t
+  ;;   :config
+  ;;   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
   (use-package nerd-icons-dired
     :ensure t
     :hook
     (dired-mode . nerd-icons-dired-mode))
 #+end_src
+** SVG child frames
+One issue with the child frames in emacs is that it inherits the properties of the parent frame. One of the problems that this creates is that if for example alpha-background is set, the child frames for completion with corfu becomes also transparent. This makes the child frame not very legible as more often than not in the area the child frame is created, there is already text there. Tes
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; this is required for nova to work
+    (use-package posframe
+        :ensure t)
+
+  ;;  (use-package nova
+  ;;    :vc (:url "https://github.com/thisisran/nova"
+  ;;              :branch "main")
+  ;;    :config
+  ;;    (nova-corfu-mode 1)
+  ;;    (nova-corfu-popupinfo-mode 1)
+  ;;    (nova-eldoc-mode 1))
+        
+#+end_src
+The above code doesn't work because emacs 30.1 has a bug where it gives the error that "Can't read the whole string". Once this is fixed, the manual configuration below will be removed.
+#+begin_src emacs-lisp :tangle "init.el"
+;;  (add-to-list 'load-path "/home/arn/.emacs.d/nova/")
+;;  (require 'nova)
+;;  (require 'nova-corfu)
+;;(require 'nova-eldoc)
+
+;;  (nova-corfu-mode 1)
+;;(nova-eldoc-mode 1)
+#+end_src
+The code above also doesn't really work and it behaves in a strange way. Revisit this package in the future to see if this can be solved and it actually works. For now stuck with the transparency problem with corfu child frames. Anyhow it doesn't look that good.
 ** Completion for key bindings with which-key
+
 :PROPERTIES:
 :ID:       83fbef1b-c23c-4451-9823-f9162ecf0785
 :CREATED:  [2025-01-07 Tue 03:25]
@@ -775,8 +831,6 @@ This doesn't seem to work with windows. I have gotten over the need for transpar
       (which-key-mode +1)
       (setq which-key-idle-delay 0.4
             which-key-idle-secondary-delay 0.4))
-  
-
 #+end_src
 ** Customizing variables relevant to completion
 :PROPERTIES:
@@ -1095,15 +1149,15 @@ Previously I have used Org-roam for this purpose. However, I find the org-node p
 PDF tools uses a separate program called epdfinfo that uses a library called Poppler to read data from PDF. On Linux systems (maybe also MacOS), merely installing the package PDF-tools in Emacs installs these programs automatically and doesn't require any manual intervention. On Windows, this program has to be installed separately and some additional config is required.
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; (use-package pdf-tools
-  ;;   :ensure t
-  ;;   :init
-  ;;   ;; required for Windows systems
-  ;;   (setenv "PATH" (concat "C:/msys64/mingw64/bin/" ";" (getenv "PATH")))
-  ;;   (pdf-tools-install)
-  ;;   :custom
-  ;;   ;; required for Windows systems
-  ;;   (pdf-info-epdfinfo-program "C:/msys64/mingw64/bin/epdfinfo.exe"))
+    ;; (use-package pdf-tools
+    ;;   :ensure t
+    ;;   :init
+    ;;   ;; required for Windows systems
+    ;;   (setenv "PATH" (concat "C:/msys64/mingw64/bin/" ";" (getenv "PATH")))
+    ;;   (pdf-tools-install)
+    ;;   :custom
+    ;;   ;; required for Windows systems
+    ;;   (pdf-info-epdfinfo-program "C:/msys64/mingw64/bin/epdfinfo.exe"))
 #+end_src
 
 *** PDF-tools on Windows
