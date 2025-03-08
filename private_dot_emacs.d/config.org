@@ -163,8 +163,8 @@ For LSP-mode, the following config is recommended in their documentation to enha
 ** Setting the default font before emacs frame is created
 #+begin_src emacs-lisp :tangle "early-init.el"
     ;; setup default font
-  (add-to-list 'default-frame-alist '(font . "MartianMono Nerd Font" ))
-  (set-face-attribute 'default t :font "MartianMono Nerd Font" :height 100)
+  (add-to-list 'default-frame-alist '(font . "MartianMono" ))
+  (set-face-attribute 'default t :font "MartianMono" :height 100)
 #+end_src
 ** Early Initialization end:
 #+begin_src emacs-lisp :tangle "early-init.el"
@@ -395,13 +395,13 @@ All of the fonts here are free and can be downloaded by a simple search. I will 
 
 #+begin_src emacs-lisp :tangle "init.el"
   ;; setup default font
-  (add-to-list 'default-frame-alist '(font . "MartianMono Nerd Font" ))
-  (set-face-attribute 'default t :font "MartianMono Nerd Font" :height 100)
+  (add-to-list 'default-frame-alist '(font . "MartianMono" ))
+  (set-face-attribute 'default t :font "MartianMono" :height 100)
 
   ;; setup variable pitch font
   (custom-theme-set-faces
    'user
-   '(fixed-pitch ((t (:family "MartianMono Nerd Font" :height 100))))
+   '(fixed-pitch ((t (:family "MartianMono" :height 100))))
    '(variable-pitch ((t (:family "Merriweather" :height 110)))))
 
   ;; setup font for bengali
@@ -455,8 +455,8 @@ All of the fonts here are free and can be downloaded by a simple search. I will 
           '((matches . (bold underline))
             (selection . (semibold italic))))
 
-    (load-theme 'modus-vivendi-tinted t t)
-    (enable-theme 'modus-vivendi-tinted))
+    (load-theme 'modus-operandi-tinted t t)
+    (enable-theme 'modus-operandi-tinted))
 #+end_src
 
 *** Line numbers
@@ -498,8 +498,8 @@ Custom function to ensure that line numbers are shown in modes such as: while co
 This doesn't seem to work with windows. I have gotten over the need for transparency as a whole to be honest. But if and when it is required, this is the way to set it up.
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (set-frame-parameter nil 'alpha-background 80)
-  (add-to-list 'default-frame-alist '(alpha-background . 80))
+  (set-frame-parameter nil 'alpha-background 100)
+  (add-to-list 'default-frame-alist '(alpha-background . 100))
 #+end_src
 
 *** Mode line
@@ -858,7 +858,8 @@ For this purpose, the "ripgrep-all" and "fzf" programs, it is possible to fuzzy 
 :END:
 
 rga documentation recommends installation using scoop. "scoop install rga" and "scoop install fzf" should do everything required for the setup. Additionally, all scoop programs need to be put in path of emacs.
-
+*** rga for linux
+rga should be available as a brew package.
 *** rg.el package (not working in Windows with this config)
 :PROPERTIES:
 :ID:       cc3374c1-ddef-4001-937a-057b38a19583
