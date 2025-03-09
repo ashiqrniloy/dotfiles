@@ -26,4 +26,14 @@ unset rc
 
 eval "$(starship init bash)"
 
-export EDITOR="/usr/bin/hx"
+# export EDITOR="/usr/bin/hx"
+
+export EDITOR="/usr/bin/distrobox-enter -n arch -e emacs"
+
+alias cze='chezmoi edit'
+alias cza='chezmoi apply'
+alias czr='chezmoi re-add'
+alias czd='chezmoi diff'
+
+
+
