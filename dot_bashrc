@@ -28,7 +28,7 @@ eval "$(starship init bash)"
 
 # export EDITOR="/usr/bin/hx"
 
-export EDITOR="/usr/bin/distrobox-enter -n arch -e emacs"
+export EDITOR="/usr/bin/distrobox-enter -n arch -e emacs -nw"
 
 alias cze='chezmoi edit'
 alias cza='chezmoi apply'
