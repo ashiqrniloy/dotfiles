@@ -202,7 +202,7 @@ exec /usr/libexec/pam_kwallet_init
 
 export lockscreen='/home/arn/Pictures/Wallpapers/pier.jpg'
 
-# Idle Management
+# Idle Management not working at the moment
 pkill -f swayidle
 swayidle -w \
 timeout 300 'swaylock -f -i $lockscreen' \
