@@ -44,7 +44,7 @@ This section provides some conventions followed for this configuration. Followin
 1. Functions and variables that start with "arn" are generally written by me.
 2. There are cases where I copied a function and did not keep the name of the person who wrote the function. In such cases, I have used the prefix "unknown."
 3. Any function or variable code that are copied from somewhere, I will try to keep a link to those websites or repositories in the [[id:5c241ff2-c926-44f7-869b-1b692bc91a9c][Disclaimer and Credits]] section.
-4. For custom functions, the convention "name-function-name" is used.
+4. For custom functions, the convention "name-function-name" or "name/function-name" is used.
 5. For custom variables, the convention "name--variable-name" is used.
 
 This is for me to remember how things are structured in the config. Anyone reading this config also may be could understand.
@@ -388,8 +388,6 @@ Needs to be implemented with the native vc-use-package setup for emacs-30
 
 This is one of the steps required for a new setup. The following fonts are to be installed:
 
-- *Commit Mono*: A customized version of the commit mono font named "CommitMonoarn". The customization is essentially just changing the "g" and "a" letters and using the alternative form offered.
-- *iA Writer Quattro V*: The variable font of Quattro by iA Writer.
 - *Kalpurush*: Font for writing in Bangla.
 - *Symbols Nerd Font Mono*: This is the font that is required for showing icons with Nerd Icons.
 
@@ -499,15 +497,6 @@ This doesn't seem to work with windows. I have gotten over the need for transpar
   (set-frame-parameter nil 'alpha-background 60)
   (add-to-list 'default-frame-alist '(alpha-background . 60))
   (add-to-list 'pop-up-frame-alist '(alpha-background . 100))
-#+end_src
-
-#+begin_src emacs-lisp :tangle "init.el"
-    (defun arn/make-frame-transparent ()
-      "Function to make the frame transparent"
-      (interactive)
-      (set-frame-parameter nil 'alpha-background 60)
-      (add-to-list 'default-frame-alist '(alpha-background . 60))
-      (add-to-list 'pop-up-frame-alist '(alpha-background . 100)))
 #+end_src
 
 *** Mode line
@@ -1146,6 +1135,20 @@ Previously I have used Org-roam for this purpose. However, I find the org-node p
 :ID:       a5dc5189-369e-4a70-884d-c658b942e6d0
 :CREATED:  [2025-01-07 Tue 03:27]
 :END:
+
+*** PDF-tools on Linux
+:PROPERTIES:
+:ID:       d6ae81d9-4aa2-4eec-aac9-e91fa1f8b287
+:END:
+Simply installing PDF-tools package should enable PDF support for Linux.
+*** PDF-tools on Windows
+:PROPERTIES:
+:ID:       0c11cc3f-3468-401a-beb9-1f2772424af1
+:CREATED:  [2025-01-07 Tue 03:35]
+:END:
+
+For Windows systems, some additional steps are required. As mentioned in the [[id:e372e95b-8f96-496b-a023-651e8a9a54f5][Installation]] section particularly for [[id:7a3dd237-e584-4631-9fb7-37747c36a67b][Windows]] systems, The MSYS2 distribution of Emacs is used and most programs necessary for [[id:70fe6549-ddff-4b42-82a9-c11d72409392][Supplementary setup]] is also installed using MSYS2 distribution. Similarly, the mingw64 package of epdfinfo needs to be installed.
+
 PDF tools uses a separate program called epdfinfo that uses a library called Poppler to read data from PDF. On Linux systems (maybe also MacOS), merely installing the package PDF-tools in Emacs installs these programs automatically and doesn't require any manual intervention. On Windows, this program has to be installed separately and some additional config is required.
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -1159,14 +1162,6 @@ PDF tools uses a separate program called epdfinfo that uses a library called Pop
     ;;   ;; required for Windows systems
     ;;   (pdf-info-epdfinfo-program "C:/msys64/mingw64/bin/epdfinfo.exe"))
 #+end_src
-
-*** PDF-tools on Windows
-:PROPERTIES:
-:ID:       0c11cc3f-3468-401a-beb9-1f2772424af1
-:CREATED:  [2025-01-07 Tue 03:35]
-:END:
-
-For Windows systems, some additional steps are required. As mentioned in the [[id:e372e95b-8f96-496b-a023-651e8a9a54f5][Installation]] section particularly for [[id:7a3dd237-e584-4631-9fb7-37747c36a67b][Windows]] systems, The MSYS2 distribution of Emacs is used and most programs necessary for [[id:70fe6549-ddff-4b42-82a9-c11d72409392][Supplementary setup]] is also installed using MSYS2 distribution. Similarly, the mingw64 package of epdfinfo needs to be installed. Additionally, 
 *** TODO Figure out how to do config based on OS >> Move to General Settings
 - So that when the config file is installed, the correct config is applied automatically in Emacs based on the OS.
 
