@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=nwg-look
+Comment=nwg-look is the GUI based GTK settings editor for Wlroots compositors such as: Hyprland or River
+Exec=/usr/bin/distrobox-enter -n arch -e nwg-look 
+Icon=/home/arn/.local/share/icons/nwg-look/nwg-look.png
+Terminal=false
+Type=Application
+Categories=Utility
