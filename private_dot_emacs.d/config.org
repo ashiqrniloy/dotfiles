@@ -23,7 +23,6 @@ This text is just a simple reminder of why this time investment was made.
 :PROPERTIES:
 :ID:       5c241ff2-c926-44f7-869b-1b692bc91a9c
 :CREATED:  [2025-01-02 Thu 02:26]
-:BACKLINKS: [[id:ade029d8-d930-41ab-b575-8fd706301ef1][Conventions]]
 :END:
 I am not good at emacs lisp. And I don't understand emacs that well. Most of the code here is copied from somewhere. But what I have done is that I have tried to understand what the code is doing and kept only the snippets that made sense to me and seemed useful for what I use emacs for.
 
@@ -52,13 +51,11 @@ This is for me to remember how things are structured in the config. Anyone readi
 :PROPERTIES:
 :ID:       e372e95b-8f96-496b-a023-651e8a9a54f5
 :CREATED:  [2025-01-07 Tue 03:31]
-:BACKLINKS: [[id:0c11cc3f-3468-401a-beb9-1f2772424af1][PDF-tools on Windows]]
 :END:
 ** Windows
 :PROPERTIES:
 :ID:       7a3dd237-e584-4631-9fb7-37747c36a67b
 :CREATED:  [2025-01-02 Thu 03:20]
-:BACKLINKS: [[id:0c11cc3f-3468-401a-beb9-1f2772424af1][PDF-tools on Windows]]
 :END:
 
 *** Emacs for Windows
@@ -73,7 +70,6 @@ For now, I have been using the mingw64 package for emacs installed through MSYS2
 :PROPERTIES:
 :ID:       70fe6549-ddff-4b42-82a9-c11d72409392
 :CREATED:  [2025-01-05 Sun 03:15]
-:BACKLINKS: [[id:0c11cc3f-3468-401a-beb9-1f2772424af1][PDF-tools on Windows]]
 :END:
 
 **** [[id:3146e3f0-a10b-42d9-919a-47152b743dde][Install fonts]]
@@ -485,7 +481,6 @@ Needs to be implemented with the native vc-use-package setup for emacs-30
 :PROPERTIES:
 :ID:       3146e3f0-a10b-42d9-919a-47152b743dde
 :CREATED:  [2025-01-05 Sun 03:06]
-:BACKLINKS: [[id:70fe6549-ddff-4b42-82a9-c11d72409392][Supplementary setup:]]
 :END:
 
 This is one of the steps required for a new setup. The following fonts are to be installed:
@@ -990,7 +985,6 @@ The code above also doesn't really work and it behaves in a strange way. Revisit
 :PROPERTIES:
 :ID:       5f6b809c-5e15-453d-95c6-2a00f12983a7
 :CREATED:  [2025-01-13 Mon 04:19]
-:BACKLINKS: [[id:b9ec6fe4-57d8-469f-9832-44d474129bc9][Install Pandoc]]
 :END:
 For this purpose, the "ripgrep-all" and "fzf" programs, it is possible to fuzzy search virtually any text within any kind of documents. Here, emacs will be used as a frontend for these programs. They can be used with terminal as well. For combining the "rga" and "fzf" program, rga-fzf command can be used. This is a command that is provided by the "ripgrep-all" program.
 
@@ -1163,6 +1157,35 @@ This is needs to be explored how this issue can be solved.
     (setq org-modern-label-border nil)
     (global-org-modern-mode))
 #+end_src
+
+** Org-mode fonts
+:PROPERTIES:
+:ID:       dedee148-95ed-4b61-8fef-f1e0a0468e93
+:CREATED:  [2025-03-10 Mon 17:43]
+:END:
+
+For titles and body texts, Org-mode should use variable pitch fonts. However, for org blocks, code and table, fixed pitch should be used. The following function implements that.
+#+begin_src emacs-lisp :tangle "init.el"
+(defun arn/org-list-or-symbol (element list-or-symbol)
+  "Function to implement fixed pitch font for org blocks, code and table."
+  (let ((list (if (not (listp list-or-symbol))
+                  (list list-or-symbol)
+                list-or-symbol)))
+    (require 'cl-lib)
+    (cl-adjoin element list)))
+
+(eval-after-load "org"
+  '(mapc
+    (lambda (face)
+      (set-face-attribute
+       face nil
+       :inherit
+       (arn/org-list-or-symbol
+        'fixed-pitch
+        (face-attribute face :inherit))))
+    (list 'org-code 'org-block 'org-table)))
+#+end_src
+
 ** Enhance functionality of Org-mode
 :PROPERTIES:
 :ID:       822ccc00-a380-4022-b4a0-d7ecc95dec2a
@@ -1227,6 +1250,18 @@ Previously I have used Org-roam for this purpose. However, I find the org-node p
     :hook (org-mode . org-auto-tangle-mode))
 
 #+end_src
+
+** Org Source Blocks with Org Babel
+:PROPERTIES:
+:ID:       d119f7b5-f445-4a78-8375-8e3c9e0002e0
+:CREATED:  [2025-03-11 Tue 02:04]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq org-confirm-babel-evaluate nil
+        org-src-fontify-natively t
+        org-src-tab-acts-natively t)
+#+end_src
 * Support for document formats
 :PROPERTIES:
 :ID:       510e062d-229e-4cef-84f4-9230e916d11c
@@ -1278,6 +1313,23 @@ PDF tools uses a separate program called epdfinfo that uses a library called Pop
 :ID:       48abb78d-59c3-43ba-9db9-6bf32f831b12
 :CREATED:  [2025-01-07 Tue 03:52]
 :END:
+
+* Citation Management
+ 
+For my current needs, I only use citation in org-mode. The following configuration is recommended by the citar package for this use case.
+#+begin_src emacs-lisp :tangle "init.el"
+    ;; citation with citar
+  (use-package citar
+    :ensure t
+    :custom
+    (org-cite-insert-processor 'citar)
+    (org-cite-follow-processor 'citar)
+    (org-cite-activate-processor 'citar)
+    (citar-bibliography org-cite-global-bibliography))
+
+  (setq org-cite-export-processors '((t csl)))
+  (setq org-cite-csl-styles-dir '("/home/arn/Documents/Bibliographies/Citation-styles"))
+#+end_src
 * End of initialization file
 #+begin_src emacs-lisp :tangle "init.el"
   (provide 'init)
