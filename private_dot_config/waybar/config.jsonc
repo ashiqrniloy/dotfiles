@@ -10,9 +10,9 @@
         "river/tags",
         "sway/scratchpad"
     ],
-    "modules-center": [
-        "river/window"
-    ],
+    // "modules-center": [
+    //    "river/window"
+    // ],
     "modules-right": [
         "idle_inhibitor",
         "pulseaudio",
@@ -37,6 +37,22 @@
         "tooltip": true,
         "tooltip-format": "{app}: {title}"
     },
+
+    "river/tags": {
+        "num-tags": 7,
+        "tag-labels": [
+            "Google-Chrome",
+            "Terminal",
+            "Emacs",
+            "Edge",
+            "Zotero",
+            "Archlinux",
+            "Misc"
+        ]
+    },
+
+
+    
     "idle_inhibitor": {
         "format": "{icon}",
         "format-icons": {
