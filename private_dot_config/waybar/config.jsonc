@@ -41,13 +41,13 @@
     "river/tags": {
         "num-tags": 7,
         "tag-labels": [
-            "Google-Chrome",
-            "Terminal",
-            "Emacs",
-            "Edge",
-            "Zotero",
-            "Archlinux",
-            "Misc"
+            "1-Google-Chrome",
+            "2-Terminal",
+            "3-Emacs",
+            "4-Edge",
+            "5-Zotero",
+            "6-Archlinux",
+            "7-Misc"
         ]
     },
 
