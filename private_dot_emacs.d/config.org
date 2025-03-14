@@ -277,17 +277,18 @@ This is a borrowed function from unknown source. This function cleans up the pac
 :CREATED:  [2025-01-03 Fri 19:50]
 :END:
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package bind-key
-    ;; C-x prefix is for general commands
-    ;; C-c prefix is for current major mode commands
-    :bind
-    ("C-h y" . describe-personal-keybindings)
-    ("C-x SPC" . execute-extended-command)
-    ("<escape>" . keyboard-escape-quit)
-    ("C-g" . keyboard-quit)
-    ("C-x C-r" . arn/reload-init-file)
-    ("C-x k" . kill-current-buffer)
-    ("C-x C-k" . quit-window)) ;; see how a window can be closed. This one doesn't really close window
+    (use-package bind-key
+      ;; C-x prefix is for general commands
+      ;; C-c prefix is for current major mode commands
+      :bind
+      ("C-h y" . describe-personal-keybindings)
+      ("C-x SPC" . execute-extended-command)
+      ("<escape>" . keyboard-escape-quit)
+      ("C-g" . keyboard-quit)
+      ("C-x C-r" . arn/reload-init-file)
+      ("C-x k" . kill-current-buffer)
+      ("C-x C-k" . quit-window)
+      ("C-x C-s" . save-buffer)) ;; see how a window can be closed. This one doesn't really close window
 #+end_src
 
 ** Modal editing with Meow
