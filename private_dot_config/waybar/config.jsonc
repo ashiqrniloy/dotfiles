@@ -39,15 +39,17 @@
     },
 
     "river/tags": {
-        "num-tags": 7,
+        "num-tags": 9,
         "tag-labels": [
             "1-Chrome",
             "2-Terminal",
             "3-Emacs",
             "4-Edge",
-            "5-Zotero",
-            "6-Archlinux",
-            "7-Misc"
+            "5-Arch",
+            "6-Zotero",
+            "7-Notebooklm",
+            "8-Gemini",
+            "9-Misc"
         ]
     },
 
