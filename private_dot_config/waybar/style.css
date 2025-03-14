@@ -121,13 +121,13 @@ window#waybar #window {
 
 #tags button.focused {
     background-color: transparent;
-    color: #8b3103;
+    color: #ffb22c;
     box-shadow: inset 0 -2px;
 }
 
 #tags button.occupied {
     background-color: transparent;
-    color: #8b3103;
+    color: #ffb22c;
 }
 
 window#waybar:not(.bottom):not(.left):not(.right) #workspaces button.focused {
