@@ -120,7 +120,7 @@ window#waybar #window {
 }
 
 #tags button.focused {
-    background-color: transaparent;
+    background-color: transparent;
     color: #f0932b;
 }
 
