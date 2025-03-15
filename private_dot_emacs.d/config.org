@@ -385,12 +385,25 @@ The Meow package provides a blank canvas to build a modal editing system. By def
        '("Y" . meow-sync-grab)
        '("z" . meow-pop-selection)
        '("'" . repeat)
+       '(":" . execute-extended-command)
        '("<escape>" . ignore)))
     (require 'meow)
     (meow-setup)
-    (meow-global-mode 1))
-  
-    
+    (meow-global-mode 1))    
+#+end_src
+
+** Aliases for commands
+:PROPERTIES:
+:ID:       2cb8b2cd-77d7-4296-a463-b89a9d360ebd
+:CREATED:  [2025-03-15 Sat 10:08]
+:END:
+
+I am currently using Helix as the terminal text editor. With the the Meow package, the normal and motion keys are almost similar for emacs and helix. However, one common action in a text editor is to save the text. This remains different and that goes against the muscle memory of hand. While typing, I noticed many times I was wrongly trying to save a file in emacs by using the keybindings for Helix. This can be solved by customizing two things. One, assigning ":" to call execute-extended-command. Then creating a alias for save-buffer or save-some-buffers.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (defalias 'w 'save-buffer)
+  (defalias 'q 'kill-buffer)
+  (defalias 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
 ** Emacs documentation
@@ -772,45 +785,31 @@ This doesn't seem to work with windows. I have gotten over the need for transpar
 #+begin_src emacs-lisp :tangle "init.el"
   ;; setup keybindings such as tab for accepting a completing and way for navigating with C-j and C-k
   ;; setup keybinding for corfu quit maybe
-  ;; (use-package corfu
-  ;;   :ensure t
-  ;;   :hook (lsp-completion-mode . arn/corfu-setup-lsp)
-  ;;   :custom
-  ;;   (corfu-auto t)
-  ;;   (corfu-auto-prefix 2)
-  ;;   (corfu-auto-delay 0.0)
-  ;;   (corfu-quit-at-boundary 'separator)
-  ;;   (corfu-echo-documentation 0.25)
-  ;;   (lsp-completion-provider :none)
-
-  ;;   :init
-  ;;   (global-corfu-mode)
-    
-  ;;   :config
-  ;;   ;; Setup lsp to use corfu for lsp completion
-  ;;   (defun arn/corfu-setup-lsp ()
-  ;;     "Use orderless completion style with lsp-capf instead of the
-  ;; default lsp-passthrough."
-  ;;     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-  ;;           '(orderless))))
-#+end_src
-
-** In buffer completion with Company mode
-:PROPERTIES:
-:ID:       566f7820-9af5-4a33-9714-ae5d67f763e0
-:CREATED:  [2025-03-09 Sun 01:52]
-:END:
-For in buffer completion, Company mode provides a lot more options. For example: it can provide completion for python notebooks that work with ipython kernel. Also for Bengali writing this would be useful. However, the main reason to explore this is aesthetic. For Corfu the problem of child frame being transparent is a bad user experience. Exploring if Company mode is a good replacement for Corfu.
-
-The company mode overlay doesn't look that good either. Mostly because it somehow changes the main buffer a little bit making it a bit wonky to use.
-
-However, I think the main advantage of using company is that it provides a lot of third party backends such as: latex, yasnippet etc. For now I think it is best to go with company for these reasons.
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package company
+  (use-package corfu
     :ensure t
+    :hook (lsp-completion-mode . arn/corfu-setup-lsp)
+    :custom
+    (corfu-auto t)
+    (corfu-auto-prefix 2)
+    (corfu-auto-delay 0.0)
+    (corfu-quit-at-boundary 'separator)
+    (corfu-echo-documentation 0.25)
+    (lsp-completion-provider :none)
+    (text-mode-ispell-word-completion nil)
+
+    :init
+    (global-corfu-mode)
+      
     :config
-    (add-hook 'after-init-hook 'global-company-mode))
+    (add-to-list 'corfu--frame-parameters '(alpha-background . 100))
+    ;; Setup lsp to use corfu for lsp completion
+    (defun arn/corfu-setup-lsp ()
+    "Use orderless completion style with lsp-capf instead of the default lsp-passthrough."
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless))))
+
 #+end_src
+
 
 *** Provide in-buffer completion data to Corfu with Cape
 :PROPERTIES:
@@ -818,23 +817,23 @@ However, I think the main advantage of using company is that it provides a lot o
 :CREATED:  [2025-01-07 Tue 03:12]
 :END:
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; (use-package cape
-  ;;   :ensure t
-  ;;   :hook (lsp-completion-mode . arn/cape-capf-setup-lsp)
-  ;;   :init
-  ;;   (add-to-list 'completion-at-point-functions #'cape-file)
-  ;;   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  ;;   (add-to-list 'completion-at-point-functions #'cape-elisp-block)
-  ;;   ;; lsp capf
-  ;;   (defun arn/cape-capf-setup-lsp ()
-  ;;     "Replace the default `lsp-completion-at-point' with its
-  ;; `cape-capf-buster' version. Also add `cape-file' and
-  ;; `cape-dabbrev' or other backends."
-  ;;     (setf (elt (cl-member 'lsp-completion-at-point completion-at-point-functions) 0)
-  ;;           (cape-capf-buster #'lsp-completion-at-point))
-  ;;     ;;(add-to-list 'completion-at-point-functions (cape-company-to-capf #'company-yasnippet))
-  ;;     (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
-  ;;     (add-to-list 'completion-at-point-functions #'cape-file)))
+   (use-package cape
+     :ensure t
+     :hook (lsp-completion-mode . arn/cape-capf-setup-lsp)
+     :init
+     (add-to-list 'completion-at-point-functions #'cape-file)
+     (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+     (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+     ;; lsp capf
+     (defun arn/cape-capf-setup-lsp ()
+       "Replace the default `lsp-completion-at-point' with its
+   `cape-capf-buster' version. Also add `cape-file' and
+   `cape-dabbrev' or other backends."
+       (setf (elt (cl-member 'lsp-completion-at-point completion-at-point-functions) 0)
+             (cape-capf-buster #'lsp-completion-at-point))
+       ;;(add-to-list 'completion-at-point-functions (cape-company-to-capf #'company-yasnippet))
+       (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
+       (add-to-list 'completion-at-point-functions #'cape-file)))
 #+end_src
 Removing this code as it works with Corfu. With Company mode this most probably not necessary.
 ** Completion style: Orderless
@@ -866,43 +865,16 @@ Removing this code as it works with Corfu. With Company mode this most probably 
     (nerd-icons-completion-mode)
     (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
-  ;; (use-package nerd-icons-corfu
-  ;;   :ensure t
-  ;;   :config
-  ;;   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+   (use-package nerd-icons-corfu
+     :ensure t
+     :config
+     (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
   (use-package nerd-icons-dired
     :ensure t
     :hook
     (dired-mode . nerd-icons-dired-mode))
 #+end_src
-** SVG child frames
-One issue with the child frames in emacs is that it inherits the properties of the parent frame. One of the problems that this creates is that if for example alpha-background is set, the child frames for completion with corfu becomes also transparent. This makes the child frame not very legible as more often than not in the area the child frame is created, there is already text there. Tes
-#+begin_src emacs-lisp :tangle "init.el"
-  ;; this is required for nova to work
-    (use-package posframe
-        :ensure t)
-
-  ;;  (use-package nova
-  ;;    :vc (:url "https://github.com/thisisran/nova"
-  ;;              :branch "main")
-  ;;    :config
-  ;;    (nova-corfu-mode 1)
-  ;;    (nova-corfu-popupinfo-mode 1)
-  ;;    (nova-eldoc-mode 1))
-        
-#+end_src
-The above code doesn't work because emacs 30.1 has a bug where it gives the error that "Can't read the whole string". Once this is fixed, the manual configuration below will be removed.
-#+begin_src emacs-lisp :tangle "init.el"
-;;  (add-to-list 'load-path "/home/arn/.emacs.d/nova/")
-;;  (require 'nova)
-;;  (require 'nova-corfu)
-;;(require 'nova-eldoc)
-
-;;  (nova-corfu-mode 1)
-;;(nova-eldoc-mode 1)
-#+end_src
-The code above also doesn't really work and it behaves in a strange way. Revisit this package in the future to see if this can be solved and it actually works. For now stuck with the transparency problem with corfu child frames. Anyhow it doesn't look that good.
 ** Completion for key bindings with which-key
 
 :PROPERTIES:
@@ -1206,8 +1178,8 @@ Previously I have used Org-roam for this purpose. However, I find the org-node p
     ;; proactively updates backlinks when there is a change
     (setq org-node-backlink-aggressive t)
     ;; not sure what this extra-dirs does. But it seems to solve the problem when an ID is not found
-  ;;  (setq org-node-extra-id-dirs
-  ;;        '("D:/arn-org/"))
+    (setq org-node-extra-id-dirs
+          '("/home/arn/Documents/org-files"))
     ;; system for using org-capture and also provide that an ID
     (setq org-capture-templates
         '(("i" "Capture into ID node"
@@ -1237,6 +1209,9 @@ Previously I have used Org-roam for this purpose. However, I find the org-node p
     ("C-c nc" . org-node-extract-subtree)
     ;; provide an ID to a heading
     ("C-c nn" . org-node-nodeify-entry)
+
+    ;; insert a org heading with ID
+    ("C-c nh" . org-node-insert-heading)
     ;; rename an asset and update links. Only works in the directory chosen. Best to keep all assets in the same root directory. Has to be explored how to make sure this works
     ("C-c ar" . org-node-rename-asset-and-rewrite-links))
 #+end_src
@@ -1316,6 +1291,10 @@ PDF tools uses a separate program called epdfinfo that uses a library called Pop
 :END:
 
 * Citation Management
+:PROPERTIES:
+:ID:       ccb68abb-fd6c-4bde-a58e-a92bfade5e4f
+:CREATED:  [2025-03-15 Sat 10:55]
+:END:
  
 For my current needs, I only use citation in org-mode. The following configuration is recommended by the citar package for this use case.
 #+begin_src emacs-lisp :tangle "init.el"
@@ -1331,7 +1310,18 @@ For my current needs, I only use citation in org-mode. The following configurati
   (setq org-cite-export-processors '((t csl)))
   (setq org-cite-csl-styles-dir '("/home/arn/Documents/Bibliographies/Citation-styles"))
 #+end_src
+
+* LLMs in Emacs
+:PROPERTIES:
+:ID:       27bc811a-e925-4641-a222-cd5be267d11a
+:CREATED:  [2025-03-15 Sat 10:55]
+:END:
+
 * End of initialization file
+:PROPERTIES:
+:ID:       2331d3e9-7e67-46d1-99cc-ce4fc7ab17e6
+:CREATED:  [2025-03-15 Sat 10:57]
+:END:
 #+begin_src emacs-lisp :tangle "init.el"
   (provide 'init)
   ;;; init.el ends here
