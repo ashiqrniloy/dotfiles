@@ -182,6 +182,7 @@ riverctl default-layout rivertile
 rivertile -view-padding 2 -outer-padding 2 &
 
 riverctl focus-follows-cursor always
+riverctl set-cursor-warp on-focus-change
 
 riverctl map normal Super Escape spawn 'swaylock -f'
 
