@@ -19,7 +19,7 @@ swaybg -m fill -i /home/arn/Pictures/Wallpapers/river-bank.jpg &
 riverctl map normal Super+Shift Return spawn foot
 
 # launcher
-riverctl map normal Super+Shift Space spawn "rofi -show drun"
+riverctl map normal Super+Shift Space spawn fuzzel
 
 # Super+Q to close the focused view
 riverctl map normal Super Q close
