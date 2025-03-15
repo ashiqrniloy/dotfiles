@@ -21,6 +21,19 @@ riverctl map normal Super+Shift Return spawn foot
 # launcher
 riverctl map normal Super+Shift Space spawn fuzzel
 
+# notification with mako
+pgrep mako && makoctl reload || mako &
+
+# wallpaper
+export wallpaper='~/Pictures/Wallpapers/bridge.jpg'
+
+# swayidle
+swayidle -w \\
+        timeout 300 'swaylock -f -i $wallpaper' \\
+        timeout 600 'wlopm --off \*;swaylock -F -i $wallpaper' resume 'wlomp --on \*' \\
+        before-sleep 'swaylock -f -i $wallpaper' &
+  
+
 # Super+Q to close the focused view
 riverctl map normal Super Q close
 
@@ -170,7 +183,9 @@ rivertile -view-padding 2 -outer-padding 2 &
 
 riverctl focus-follows-cursor always
 
-riverctl map normal Super Escape spawn "swaylock -f"
+riverctl map normal Super Escape spawn 'swaylock -f'
+
+riverctl map normal Super+Shift Escape spawn "swaylock -f && systemctl suspend"
 
 riverctl map normal None Print spawn 'grim -g "$(slurp -d)" - | wl-copy'
 
@@ -210,13 +225,3 @@ riverctl spawn nm-applet
 exec dbus-update-activation-environment --all
 exec gnome-keyring-daemon --start --components=secrets
 exec /usr/libexec/pam_kwallet_init
-
-export lockscreen='/home/arn/Pictures/Wallpapers/pier.jpg'
-
-# Idle Management not working at the moment
-pkill -f swayidle
-swayidle -w \
-timeout 300 'swaylock -f -i $lockscreen' \
-timeout 600 'wlopm --off \*;swaylock -F -i $lockscreen resume 'wlopm --on\*' \
-before-sleep 'swaylock -f -i $lockscreen ' &
-
