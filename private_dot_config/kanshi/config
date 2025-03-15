@@ -1,0 +1,8 @@
+profile Laptop {
+    output eDP-1 position 0,0 mode 1920x1200
+}
+
+profile Dock {
+    output DP-2 position 0,0 mode 2560x1440
+    output eDP-1 position 0,1440 mode 1920x1200
+}
