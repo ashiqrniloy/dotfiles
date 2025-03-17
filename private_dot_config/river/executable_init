@@ -183,7 +183,7 @@ rivertile -view-padding 2 -outer-padding 2 &
 
 riverctl focus-follows-cursor always
 riverctl set-cursor-warp on-focus-change
-riverctl xcursor-theme breeze-light
+riverctl xcursor-theme Breeze_Light
 
 riverctl map normal Super Escape spawn 'swaylock -f'
 
