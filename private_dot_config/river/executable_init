@@ -28,9 +28,9 @@ pgrep mako && makoctl reload || mako &
 export wallpaper='~/Pictures/Wallpapers/bridge.jpg'
 
 # swayidle
-swayidle -w \\
-        timeout 300 'swaylock -f -i $wallpaper' \\
-        timeout 600 'wlopm --off \*;swaylock -F -i $wallpaper' resume 'wlomp --on \*' \\
+swayidle -w \
+        timeout 5 'swaylock -f -i $wallpaper' \
+        timeout 10 'wlopm --off \*;swaylock -F -i $wallpaper' resume 'wlomp --on \*' \
         before-sleep 'swaylock -f -i $wallpaper' &
   
 
