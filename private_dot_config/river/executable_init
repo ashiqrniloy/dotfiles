@@ -29,9 +29,9 @@ export wallpaper='~/Pictures/Wallpapers/bridge.jpg'
 
 # swayidle
 swayidle -w \
-        timeout 5 'swaylock -f -i $wallpaper' \
-        timeout 10 'wlopm --off \*;swaylock -F -i $wallpaper' resume 'wlomp --on \*' \
-        before-sleep 'swaylock -f -i $wallpaper' &
+        timeout 20 'swaylock -f -c 000000' \
+        timeout 40 'systemctl suspend' \
+        before-sleep 'swaylock -f -c 000000' &
   
 
 # Super+Q to close the focused view
