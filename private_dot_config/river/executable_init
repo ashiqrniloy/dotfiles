@@ -29,8 +29,8 @@ export wallpaper='~/Pictures/Wallpapers/bridge.jpg'
 
 # swayidle
 swayidle -w \
-        timeout 20 'swaylock -f -c 000000' \
-        timeout 40 'systemctl suspend' \
+        timeout 300 'swaylock -f -c 000000' \
+        timeout 600 'systemctl suspend' \
         before-sleep 'swaylock -f -c 000000' &
   
 
