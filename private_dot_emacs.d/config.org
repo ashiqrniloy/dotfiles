@@ -222,8 +222,8 @@ I am not entirely sure what this does. Need to look at this further.
 #+end_src
 ** Record Personal info
 #+begin_src emacs-lisp :tangle "init.el"
-  (setq user-mail-address "ashiq.niloy@outlook.com"
-        user-full-name "Md Ashiqur Rahman (Niloy)")
+  (setq user-mail-address "ashiq.niloy@proton.me"
+        user-full-name "Ashiqur Rahman Niloy")
 #+end_src
 ** Custom function - Easy reload init file
 :PROPERTIES:
