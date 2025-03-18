@@ -19,7 +19,7 @@ swaybg -m fill -i /home/arn/.local/share/backgrounds/river-bank.jpg &
 riverctl map normal Super+Shift Return spawn foot
 
 # launcher
-riverctl map normal Super+Shift Space spawn fuzzel
+riverctl map normal Super+Shift Space spawn "rofi -show drun"
 
 # notification with mako
 pgrep mako && makoctl reload || mako &
