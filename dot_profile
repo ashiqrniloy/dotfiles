@@ -1,1 +1,5 @@
 export EDITOR="/usr/bin/hx"
+
+if [ -d "$HOME/adb-fastboot/platform-tools" ] ; then
+ export PATH="$HOME/Programs/platform-tools:$PATH"
+fi
