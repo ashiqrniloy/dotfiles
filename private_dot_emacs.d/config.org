@@ -402,7 +402,7 @@ I am currently using Helix as the terminal text editor. With the the Meow packag
 
 #+begin_src emacs-lisp :tangle "init.el"
   (defalias 'w 'save-buffer)
-  (defalias 'q 'kill-buffer)
+  (defalias 'q 'kill-buffer-and-window)
   (defalias 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
@@ -1159,12 +1159,12 @@ For titles and body texts, Org-mode should use variable pitch fonts. However, fo
     (list 'org-code 'org-block 'org-table)))
 #+end_src
 
-** Enhance functionality of Org-mode
+** PKM with Org-Node
 :PROPERTIES:
 :ID:       822ccc00-a380-4022-b4a0-d7ecc95dec2a
 :CREATED:  [2025-01-09 Thu 02:53]
 :END:
-*** PKM with Org-Node
+
 Previously I have used Org-roam for this purpose. However, I find the org-node package to be simpler to understand and it (apparently) provides better performance than Org-roam.
 
 #+begin_src emacs-lisp :tangle "init.el"
