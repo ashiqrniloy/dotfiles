@@ -17,7 +17,7 @@ Following are some specific benefits of having this file:
 - Details on why some configuration was done
 - Details on why some package was installed.
 
-This text is just a simple reminder of why this time investment was made. 
+This text is just a simple reminder of why this time investment was made.
 
 * Disclaimer and Credits
 :PROPERTIES:
@@ -277,18 +277,26 @@ This is a borrowed function from unknown source. This function cleans up the pac
 :CREATED:  [2025-01-03 Fri 19:50]
 :END:
 #+begin_src emacs-lisp :tangle "init.el"
-    (use-package bind-key
-      ;; C-x prefix is for general commands
-      ;; C-c prefix is for current major mode commands
-      :bind
-      ("C-h y" . describe-personal-keybindings)
-      ("C-x SPC" . execute-extended-command)
-      ("<escape>" . keyboard-escape-quit)
-      ("C-g" . keyboard-quit)
-      ("C-x C-r" . arn/reload-init-file)
-      ("C-x k" . kill-current-buffer)
-      ("C-x C-k" . quit-window)
-      ("C-x C-s" . save-buffer)) ;; see how a window can be closed. This one doesn't really close window
+  (use-package bind-key
+    ;; C-x prefix is for general commands
+    ;; C-c prefix is for current major mode commands
+    :bind
+    ("C-h y" . describe-personal-keybindings)
+    ("C-x SPC" . execute-extended-command)
+    ("<escape>" . keyboard-escape-quit)
+    ("C-g" . keyboard-quit)
+    ("C-x C-r" . arn/reload-init-file)
+    ("C-x k" . kill-current-buffer)
+    ("C-x C-k" . quit-window)
+    ("C-x C-s" . save-buffer)
+    ("C-c l" . org-store-link)
+    ("C-c a" . org-agenda)
+    ("C-c c" . org-capture)
+    ("C-c C-q" . org-set-tags-command)
+    ("C-c C-d" . org-deadline)
+    ("C-c C-s" . org-schedule))
+  
+
 #+end_src
 
 ** Modal editing with Meow
@@ -939,7 +947,7 @@ Removing this code as it works with Corfu. With Company mode this most probably 
                    nil
                    (window-parameters (mode-line-format . none)))))
 #+end_src
-**** TODO Explore the embark package to see what else is possible
+*** TODO Explore the embard package to check it's capabilities
 ** Using Consult and Embark together
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package embark-consult
@@ -1213,8 +1221,110 @@ Previously I have used Org-roam for this purpose. However, I find the org-node p
     ;; insert a org heading with ID
     ("C-c nh" . org-node-insert-heading)
     ;; rename an asset and update links. Only works in the directory chosen. Best to keep all assets in the same root directory. Has to be explored how to make sure this works
-    ("C-c ar" . org-node-rename-asset-and-rewrite-links))
+    ("C-c na" . org-node-rename-asset-and-rewrite-links))
 #+end_src
+
+** Task Management with Org-agenda:
+:PROPERTIES:
+:ID:       ea0b8f62-ba7a-4849-9e94-997a6556d65d
+:CREATED:  [2025-04-10 Thu 03:52]
+:END:
+
+*** Customizing Task Management Workflow:
+:PROPERTIES:
+:ID:       5bf73ab9-87e6-484d-9b17-b8aca64cc4d7
+:CREATED:  [2025-04-11 Fri 18:27]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq org-todo-keywords
+        '((sequence "TODO" "|" "DONE")))
+  
+#+end_src
+
+*** List of agenda files:
+:PROPERTIES:
+:ID:       9ab6c2cf-6366-4fba-9538-456e00403599
+:CREATED:  [2025-04-10 Thu 04:06]
+:END:
+**** TODO These need to be customized based on the system emacs is being used :emacs:
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq org-agenda-files (quote ("~/Documents/org-files/tasks/"
+                                 "~/.emacs.d/config.org")))
+  
+#+end_src
+*** Customization of agenda view:
+:PROPERTIES:
+:ID:       c269f28a-2bb0-410d-aea5-c9e57b5e34b4
+:CREATED:  [2025-04-12 Sat 04:13]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq org-agenda-window-setup (quote current-window))
+  (setq org-deadline-warning-days 7)
+  (setq org-agenda-span 'day)
+#+end_src
+
+*** Customization with Org-super-agenda:
+:PROPERTIES:
+:ID:       742e8911-2b30-40c1-90f9-0655c8028ded
+:CREATED:  [2025-04-10 Thu 04:07]
+:END:
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package org-super-agenda
+    :ensure t
+    :config
+    (org-super-agenda-mode)
+    (setq org-super-agenda-groups
+          '((:name "Overdue"
+                   :time-grid t
+                   :deadline past
+                   :scheduled past)
+            (:name "Urgent and Important"
+                   :time-grid t
+                   :scheduled today
+                   :deadline today
+                   :priority "A"
+                   :order 1)
+            (:name "Urgent but not important"
+                   :time-grid t
+                   :scheduled today
+                   :deadline today
+                   :not (:priority "A")
+                   :order 2)
+            (:name "Important but not urgent"
+                   :time-grid t
+                   :priority "A"
+                   :scheduled future
+                   :deadline future
+                   :order 3)
+            (:name "Backlog"
+                   :time-grid t
+                   :not (:priority "A")))))
+
+#+end_src
+
+*** Capture template for a TODO:
+:PROPERTIES:
+:ID:       7053866f-7efc-464d-bb11-cb340bae80ee
+:CREATED:  [2025-04-12 Sat 04:25]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq org-capture-templates
+        '(("t" "todo" entry (file+headline "~/Documents/org-files/tasks/todo.org" "Tasks")
+           "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t\"+0d\"))\n")))
+  
+#+end_src
+
+** Capture templates:
+:PROPERTIES:
+:ID:       ace9e296-4feb-4350-a8ef-2ca3ffd5284f
+:CREATED:  [2025-04-10 Thu 04:06]
+:END:
+*** TODO Look into documentation and implement.
+- Look at how it could work with org-node.
+
 ** Automatically tangle org-babel code
 :PROPERTIES:
 :ID:       3980305f-7319-4dcd-be7e-7be4c1b56c4c
