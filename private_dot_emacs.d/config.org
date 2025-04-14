@@ -1188,23 +1188,6 @@ Previously I have used Org-roam for this purpose. However, I find the org-node p
     ;; not sure what this extra-dirs does. But it seems to solve the problem when an ID is not found
     (setq org-node-extra-id-dirs
           '("/home/arn/Documents/org-files"))
-    ;; system for using org-capture and also provide that an ID
-    (setq org-capture-templates
-        '(("i" "Capture into ID node"
-           plain (function org-node-capture-target) nil
-           :empty-lines-after 1)
-
-          ("j" "Jump to ID node"
-           plain (function org-node-capture-target) nil
-           :jump-to-captured t
-           :immediate-finish t)
-
-          ;; Sometimes handy after `org-node-insert-link', to
-          ;; make a stub you plan to fill in later, without
-          ;; leaving the current buffer for now
-          ("s" "Make quick stub ID node"
-           plain (function org-node-capture-target) nil
-           :immediate-finish t)))
     ;; provide completion
     (org-node-complete-at-point-mode)
     ;; in case nodes with the same name exists
@@ -1236,10 +1219,13 @@ Previously I have used Org-roam for this purpose. However, I find the org-node p
 :CREATED:  [2025-04-11 Fri 18:27]
 :END:
 
+The idea of the workflow is quite simple and intentionally so. There could be items that are direct TODOs. There could be items that need to be processed to create TODOs. There are corresponding capture templates that are created to facilitate this. For example: if there is a meeting, the meeting notes can be captured with the meeting capture template with OPEN state. This will show up in the agenda that those notes are open state and need to be reviewed to create further action items.
+
 #+begin_src emacs-lisp :tangle "init.el"
   (setq org-todo-keywords
-        '((sequence "TODO" "|" "DONE")))
-  
+        '((sequence "TODO" "OPEN" "|" "DONE")))
+  (setq org-todo-keyword-faces nil)
+
 #+end_src
 
 *** List of agenda files:
@@ -1260,9 +1246,11 @@ Previously I have used Org-roam for this purpose. However, I find the org-node p
 :END:
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (setq org-agenda-window-setup (quote current-window))
-  (setq org-deadline-warning-days 7)
-  (setq org-agenda-span 'day)
+  (setq org-agenda-window-setup (quote current-window)
+        org-deadline-warning-days 0
+        org-agenda-block-separator nil
+        org-agenda-compact-blocks t)
+
 #+end_src
 
 *** Customization with Org-super-agenda:
@@ -1275,36 +1263,40 @@ Previously I have used Org-roam for this purpose. However, I find the org-node p
     :ensure t
     :config
     (org-super-agenda-mode)
-    (setq org-super-agenda-groups
-          '((:name "Overdue"
-                   :time-grid t
-                   :deadline past
-                   :scheduled past)
-            (:name "Urgent and Important"
-                   :time-grid t
-                   :scheduled today
-                   :deadline today
-                   :priority "A"
-                   :order 1)
-            (:name "Urgent but not important"
-                   :time-grid t
-                   :scheduled today
-                   :deadline today
-                   :not (:priority "A")
-                   :order 2)
-            (:name "Important but not urgent"
-                   :time-grid t
-                   :priority "A"
-                   :scheduled future
-                   :deadline future
-                   :order 3)
-            (:name "Backlog"
-                   :time-grid t
-                   :not (:priority "A")))))
+    (setq org-agenda-custom-commands
+          '(("c" "Consolidated Agenda View"
+             ((agenda "" ((org-agenda-span 'day)
+                          (org-super-agenda-groups
+                           '((:name "Today"
+                                    :time-grid t
+                                    :scheduled today
+                                    :deadline today
+                                    :order 1)
+                             (:name "Overdue"
+                                    :deadline past)))))
+              (alltodo "" ((org-agenda-overriding-header "")
+                            (org-super-agenda-groups
+                             '((:discard (:deadline past))
+                               (:discard (:scheduled today))
+                               (:discard (:deadline today))
+                               (:name "Important"
+                                      :priority "A"
+                                      :order 3)
+                               (:name "Due Soon"
+                                      :deadline future
+                                      :order 4)
+                               (:name "Low Priority"
+                                      :priority<= "B"
+                                      :order 5)
+                               (:name "Backlog"
+                                      :todo "TODO"
+                                      :todo "OPEN"
+                                      :order 20))))))))))
+
 
 #+end_src
 
-*** Capture template for a TODO:
+** Capture templates:
 :PROPERTIES:
 :ID:       7053866f-7efc-464d-bb11-cb340bae80ee
 :CREATED:  [2025-04-12 Sat 04:25]
@@ -1312,18 +1304,13 @@ Previously I have used Org-roam for this purpose. However, I find the org-node p
 
 #+begin_src emacs-lisp :tangle "init.el"
   (setq org-capture-templates
-        '(("t" "todo" entry (file+headline "~/Documents/org-files/tasks/todo.org" "Tasks")
-           "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t\"+0d\"))\n")))
+        '(("t" "TODO" entry (file "~/Documents/org-files/tasks/todo.org")
+           "* TODO [#A] %?\n")
+          ("m" "MEETING" entry (file "~/Documents/org-files/tasks/notes.org")
+           "* OPEN [#A] %?\n")))
   
 #+end_src
 
-** Capture templates:
-:PROPERTIES:
-:ID:       ace9e296-4feb-4350-a8ef-2ca3ffd5284f
-:CREATED:  [2025-04-10 Thu 04:06]
-:END:
-*** TODO Look into documentation and implement.
-- Look at how it could work with org-node.
 
 ** Automatically tangle org-babel code
 :PROPERTIES:
