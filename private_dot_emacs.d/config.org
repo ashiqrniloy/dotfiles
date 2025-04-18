@@ -8,8 +8,6 @@
 *Last revised and exported on {{{latest-export-date}}} with a word
 count of {{{word-count}}}.*
 
-This is the literate config of emacs. The reason this is not a simple init.el file is that for emacs to work properly, especially in different operating systems, different setup for the computer is required. For example: a program has to be installed or specific path needs to be added to exec-path etc. This seems particularly important now that I am using emacs on Windows and there seem to a lot of quirks that need to be figured out. 
-
 Following are some specific benefits of having this file:
 - This file can act as a setup documentation for future installations
 - OS specific instructions can be documented
@@ -463,13 +461,13 @@ This package provides a better formatting for the documenation pages.
 *** Improved scrolling
 Needs to be implemented with the native vc-use-package setup for emacs-30
 #+begin_src emacs-lisp :tangle "init.el"
-;;  (use-package ultra-scroll
-;;    :vc (:fetcher github :repo jdtsmith/ultra-scroll)
-;;    :init
-;;    (setq scroll-conservatively 101 ; important!
-;;          scroll-margin 0) 
-;;    :config
-;;    (ultra-scroll-mode 1))
+  ;; (use-package ultra-scroll
+  ;;   :vc (:url "https://github.com/jdsmith/ultra-scroll")
+  ;;   :init
+  ;;   (setq scroll-conservatively 101 ; important!
+  ;;         scroll-margin 0)
+  ;;   :config
+  ;;   (ultra-scroll-mode 1))
 
 #+end_src
 *** Spacious padding
