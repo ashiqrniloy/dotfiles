@@ -41,14 +41,14 @@
     "river/tags": {
         "num-tags": 9,
         "tag-labels": [
-            "1-Brave",
+            "1-Browser",
             "2-Terminal",
             "3-Emacs",
-            "4-Edge",
-            "5-Arch",
-            "6-Zotero",
-            "7-Notebooklm",
-            "8-Gemini",
+            "4-Zotero",
+            "5-Gemini",
+            "6-NotebookLM",
+            "7-Containers",
+            "8-Work",
             "9-Misc"
         ]
     },
