@@ -587,7 +587,7 @@ Custom function to ensure that line numbers are shown in modes such as: while co
   (column-number-mode)
   (require 'display-line-numbers)
   (defcustom display-line-numbers-exempt-modes
-    '(org-mode vterm-mode eshell-mode shell-mode term-mode ansi-term-mode pdf-view-mode)
+    '(org-mode vterm-mode eshell-mode shell-mode term-mode ansi-term-mode pdf-view-mode org-agenda-mode)
     "Major modes on which to disable line numbers."
     :group 'display-line-numbers
     :type 'list
