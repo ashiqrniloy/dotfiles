@@ -1184,6 +1184,9 @@ Previously I have used Org-roam for this purpose. However, I find the org-node p
     ;; proactively updates backlinks when there is a change
     (setq org-node-backlink-aggressive t)
     ;; not sure what this extra-dirs does. But it seems to solve the problem when an ID is not found
+    (setq org-node-ask-directory "/home/arn/Documents/org-files")
+    (setq org-node-data-dir '("/home/arn/Documents/org-files"))
+    (setq org-id-locations-file '("/home/arn/Documents/org-files/id-locations.el"))
     (setq org-node-extra-id-dirs
           '("/home/arn/Documents/org-files"))
     ;; provide completion
@@ -1305,8 +1308,12 @@ The idea of the workflow is quite simple and intentionally so. There could be it
         '(("t" "TODO" entry (file "~/Documents/org-files/tasks/todo.org")
            "* TODO [#A] %?\n")
           ("m" "MEETING" entry (file "~/Documents/org-files/tasks/notes.org")
-           "* OPEN [#A] %?\n")))
+           "* OPEN [#A] %?\n")
+          ("i" "Capture into ID node"
+           plain (function org-node-capture-target) nil
+           :empty-lines-after 1)))
   
+
 #+end_src
 
 
