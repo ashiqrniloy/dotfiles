@@ -1312,8 +1312,6 @@ The idea of the workflow is quite simple and intentionally so. There could be it
           ("i" "Capture into ID node"
            plain (function org-node-capture-target) nil
            :empty-lines-after 1)))
-  
-
 #+end_src
 
 
@@ -1355,7 +1353,14 @@ The idea of the workflow is quite simple and intentionally so. There could be it
 :PROPERTIES:
 :ID:       d6ae81d9-4aa2-4eec-aac9-e91fa1f8b287
 :END:
-Simply installing PDF-tools package should enable PDF support for Linux.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package pdf-tools
+    :ensure t
+    :init
+    (pdf-tools-install))
+  
+#+end_src
 *** PDF-tools on Windows
 :PROPERTIES:
 :ID:       0c11cc3f-3468-401a-beb9-1f2772424af1
@@ -1391,6 +1396,13 @@ PDF tools uses a separate program called epdfinfo that uses a library called Pop
 :ID:       48abb78d-59c3-43ba-9db9-6bf32f831b12
 :CREATED:  [2025-01-07 Tue 03:52]
 :END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package org-pdftools
+    :ensure t
+    :hook (org-mode . org-pdftools-setup-link))
+  
+#+end_src
 
 * Citation Management
 :PROPERTIES:
