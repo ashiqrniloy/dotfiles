@@ -945,7 +945,7 @@ Removing this code as it works with Corfu. With Company mode this most probably 
                    nil
                    (window-parameters (mode-line-format . none)))))
 #+end_src
-*** TODO Explore the embard package to check it's capabilities
+*** TODO Explore the embark package to check it's capabilities
 ** Using Consult and Embark together
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package embark-consult
@@ -1295,6 +1295,18 @@ The idea of the workflow is quite simple and intentionally so. There could be it
                                       :order 20))))))))))
 
 
+#+end_src
+
+** Webpages and Bookmarks
+:PROPERTIES:
+:ID:       08d6ee03-2865-4399-bdd1-68d8a94b7dde
+:CREATED:  [2025-04-23 Wed 02:57]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package org-web-tools
+    :ensure t)
+  
 #+end_src
 
 ** Capture templates:
