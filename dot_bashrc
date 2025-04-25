@@ -13,6 +13,8 @@ export PATH
 
 # adding texlive to PATH
 PATH="/home/arn/Programs/texlive/2025/bin/x86_64-linux:$PATH"
+MANPATH="/home/arn/Programs/texlive/2025/texmf-dist/doc/man:$MANPATH"
+INFOPATH="/home/arn/Programs/texlive/2025/texmf-dist/doc/info:$INFOPATH"
 
 # Uncomment the following line if you don't like systemctl's auto-paging feature:
 # export SYSTEMD_PAGER=
