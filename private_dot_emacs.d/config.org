@@ -283,6 +283,7 @@ This is a borrowed function from unknown source. This function cleans up the pac
     ("C-x C-r" . arn/reload-init-file)
     ("C-x k" . kill-current-buffer)
     ("C-x C-k" . quit-window)
+    ("C-x w" . find-file-other-window)
     ("C-x C-s" . save-buffer)
     ("C-c l" . org-store-link)
     ("C-c a" . org-agenda)
@@ -290,7 +291,7 @@ This is a borrowed function from unknown source. This function cleans up the pac
     ("C-c C-q" . org-set-tags-command)
     ("C-c C-d" . org-deadline)
     ("C-c C-s" . org-schedule))
-  
+
 
 #+end_src
 
@@ -415,7 +416,7 @@ I am currently using Helix as the terminal text editor. With the the Meow packag
 :CREATED:  [2025-01-07 Tue 03:54]
 :END:
 
-Probably one of the significant differentiators of Emacs as a program is that the documentation for all the variables, keys and functions in Emacs are accessible inside the program. It is also self documenting meaning that anything and everything that is changes is reflected in this documentation.
+Probably one of the significant differentiation of Emacs as a program is that the documentation for all the variables, keys and functions in Emacs are accessible inside the program. It is also self documenting meaning that anything and everything that is changes is reflected in this documentation.
 
 *** Helpful documentation
 :PROPERTIES:
@@ -452,7 +453,7 @@ This package provides a better formatting for the documenation pages.
    '(tab-bar-show nil)
    '(tab-bar-close-button-show nil)
    '(pixel-scroll-precision-mode t)
-   '(line-spacing .3))
+   '(line-spacing .2))
 #+end_src
 
 *** Improved scrolling
@@ -512,7 +513,7 @@ All of the fonts here are free and can be downloaded by a simple search. I will 
   (custom-theme-set-faces
    'user
    '(fixed-pitch ((t (:family "MartianMono" :height 100))))
-   '(variable-pitch ((t (:family "Merriweather" :height 110)))))
+   '(variable-pitch ((t (:family "Roboto" :height 120)))))
 
   ;; setup font for bengali
   (set-fontset-font "fontset-default" 'bengali (font-spec :family "Noto Sans Bengali" :size 20))
@@ -565,8 +566,8 @@ All of the fonts here are free and can be downloaded by a simple search. I will 
           '((matches . (bold underline))
             (selection . (semibold italic))))
 
-    (load-theme 'modus-vivendi t t)
-    (enable-theme 'modus-vivendi))
+    (load-theme 'modus-operandi-tinted t t)
+    (enable-theme 'modus-operandi-tinted))
 #+end_src
 
 *** Line numbers
@@ -608,8 +609,8 @@ Custom function to ensure that line numbers are shown in modes such as: while co
 This doesn't seem to work with windows. I have gotten over the need for transparency as a whole to be honest. But if and when it is required, this is the way to set it up.
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (set-frame-parameter nil 'alpha-background 60)
-  (add-to-list 'default-frame-alist '(alpha-background . 60))
+  (set-frame-parameter nil 'alpha-background 100)
+  (add-to-list 'default-frame-alist '(alpha-background . 100))
   (add-to-list 'pop-up-frame-alist '(alpha-background . 100))
 #+end_src
 
@@ -738,6 +739,22 @@ This doesn't seem to work with windows. I have gotten over the need for transpar
      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
 #+end_src
 
+** Spell-check
+:PROPERTIES:
+:ID:       71fab88b-4648-4bd1-89c4-7e289423d909
+:CREATED:  [2025-04-26 Sat 12:46]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package jinx
+    :ensure t
+    :config
+    (add-hook 'emacs-startup-hook #'global-jinx-mode)
+    :bind
+    ("C-c C-/" . jinx-correct))
+  
+
+#+end_src
 * Completion
 :PROPERTIES:
 :ID:       8d4e0b80-12b8-47ec-9808-fc95ee4b021f
@@ -957,128 +974,6 @@ Removing this code as it works with Corfu. With Company mode this most probably 
 :ID:       6993f546-26cc-4489-9314-e8f9da7d680e
 :CREATED:  [2025-01-13 Mon 04:18]
 :END:
-** Search everything
-:PROPERTIES:
-:ID:       5f6b809c-5e15-453d-95c6-2a00f12983a7
-:CREATED:  [2025-01-13 Mon 04:19]
-:END:
-For this purpose, the "ripgrep-all" and "fzf" programs, it is possible to fuzzy search virtually any text within any kind of documents. Here, emacs will be used as a frontend for these programs. They can be used with terminal as well. For combining the "rga" and "fzf" program, rga-fzf command can be used. This is a command that is provided by the "ripgrep-all" program.
-
-"rga" and "fzf" needs to be installed separately for this to work.
-
-*** rga-fzf for Windows
-:PROPERTIES:
-:ID:       6f525c24-714d-4e3a-80fa-4baecb1f05a9
-:CREATED:  [2025-01-13 Mon 04:19]
-:END:
-
-rga documentation recommends installation using scoop. "scoop install rga" and "scoop install fzf" should do everything required for the setup. Additionally, all scoop programs need to be put in path of emacs.
-*** rga for linux
-rga should be available as a brew package.
-*** rg.el package (not working in Windows with this config)
-:PROPERTIES:
-:ID:       cc3374c1-ddef-4001-937a-057b38a19583
-:CREATED:  [2025-01-15 Wed 03:24]
-:END:
-
-#+begin_src emacs-lisp :tangle "init.el"
-;;  (use-package rg
-;;    :ensure t
-;;    :config
-    ;; because rga and fzf was installed via scoop
-;;    (setenv "PATH" (concat "C:/Users/ashiq/scoop/shims/" ";" (getenv "PATH")))
-;;    (setq rg-executable (executable-find "rga-fzf")))
-#+end_src
-*** consult-ripgrep-all
-:PROPERTIES:
-:ID:       ba35ed29-0635-4bee-bc43-510770ab9e9c
-:CREATED:  [2025-01-19 Sun 01:37]
-:END:
-
-This is a block of code that is supposed to make the "consult" package to use ripgrep-all to search through everything in a directory.
-
-This is still has the problem that when the preview is shown or a PDF is opened, it cannot direct to the exact location in the PDF. Rather merely shows the first page of the PDF only.
-
-This code also uses fuzzy finding with fzf with the executable "rga-fzf".
-
-This is needs to be explored how this issue can be solved.
-#+begin_src emacs-lisp :tangle "init.el"
-  ;; (defun consult--ripgrep-all-transformer (result)
-  ;; "Transform ripgrep-all result to handle PDF page numbers."
-  ;; (when result
-  ;;   (let* ((parts (split-string result ":"))
-  ;;          (file (car parts))
-  ;;          (line-or-page (cadr parts))
-  ;;          (is-pdf (string-match-p "\\.pdf$" file)))
-  ;;     (if is-pdf
-  ;;         ;; For PDFs, extract page number from line-or-page
-  ;;         (cons (format "%s:page %s:%s" 
-  ;;                      file 
-  ;;                      line-or-page 
-  ;;                      (string-join (cddr parts) ":"))
-  ;;               (list :pdf-page (string-to-number line-or-page)
-  ;;                     :file file))
-  ;;       ;; For non-PDFs, keep original format
-  ;;       result))))
-
-  ;; (defun consult--ripgrep-all-action (result)
-  ;; "Action to take when selecting a search result."
-  ;; (when result
-  ;;   (if (and (consp result) (plist-get (cdr result) :pdf-page))
-  ;;       ;; Handle PDF files
-  ;;       (let ((file (plist-get (cdr result) :file))
-  ;;             (page (plist-get (cdr result) :pdf-page)))
-  ;;         (find-file file)
-  ;;         (when (and page (fboundp 'pdf-view-goto-page))
-  ;;           (pdf-view-goto-page page)))
-  ;;     ;; Handle non-PDF files (using default behavior)
-  ;;     (consult--jump
-  ;;      (consult--marker-from-line-listing result)))))
-
-  ;; (defcustom consult-ripgrep-all-args
-  ;;   "rga-fzf --null --line-buffered --color=never --max-columns=1000 --path-separator /\  --smart-case --no-heading --with-filename --line-number"
-  ;;   "Command line arguments for ripgrep, see `consult-ripgrep-all'.
-  ;; The dynamically computed arguments are appended.
-  ;; Can be either a string, or a list of strings or expressions."
-  ;;   :type '(choice string (repeat (choice string expression))))
-
-
-  ;; (defun consult--ripgrep-all-make-builder (paths)
-  ;;   "Create ripgrep command line builder given PATHS."
-  ;;   (let* ((cmd (consult--build-args consult-ripgrep-all-args))
-  ;;          (type (if (consult--grep-lookahead-p (car cmd) "-P") 'pcre 'extended)))
-  ;;     (lambda (input)
-  ;;       (pcase-let* ((`(,arg . ,opts) (consult--command-split input))
-  ;;                    (flags (append cmd opts))
-  ;;                    (ignore-case
-  ;;                     (and (not (or (member "-s" flags) (member "--case-sensitive" flags)))
-  ;;                          (or (member "-i" flags) (member "--ignore-case" flags)
-  ;;                              (and (or (member "-S" flags) (member "--smart-case" flags))
-  ;;                                   (let (case-fold-search)
-  ;;                                     ;; Case insensitive if there are no uppercase letters
-  ;;                                     (not (string-match-p "[[:upper:]]" arg))))))))
-  ;;         (if (or (member "-F" flags) (member "--fixed-strings" flags))
-  ;;             (cons (append cmd (list "-e" arg) opts paths)
-  ;;                   (apply-partially #'consult--highlight-regexps
-  ;;                                    (list (regexp-quote arg)) ignore-case))
-  ;;           (pcase-let ((`(,re . ,hl) (funcall consult--regexp-compiler arg type ignore-case)))
-  ;;             (when re
-  ;;               (cons (append cmd (and (eq type 'pcre) '("-P"))
-  ;;                             (list "-e" (consult--join-regexps re type))
-  ;;                             opts paths)
-  ;;                     hl))))))))
-
-  ;; ;;;###autoload
-  ;; (defun consult-ripgrep-all (&optional dir initial)
-  ;;   "Search with `rga' for files in DIR where the content matches a regexp.
-  ;; The initial input is given by the INITIAL argument. See `consult-grep'
-  ;; for more details."
-  ;;   (interactive "P")
-  ;;   (let ((prompt "Ripgrep-all: "))
-  ;;   (consult--grep prompt #'consult--ripgrep-all-make-builder dir initial
-  ;;                  :add-transforms (list #'consult--ripgrep-all-transformer)
-  ;;                  :add-actions (list #'consult--ripgrep-all-action))))
-#+end_src
 ** Wgrep to edit grep files
 :PROPERTIES:
 :ID:       7871a4a5-7e39-497c-898d-dfebab3fe555
@@ -1479,11 +1374,11 @@ PDF tools uses a separate program called epdfinfo that uses a library called Pop
   (org-mode . org-fragtog-mode)
   :custom
   (org-format-latex-options
-   (plist-put org-format-latex-options :scale 2.0)
-   (plist-put org-format-latex-options :foreground 'auto)
-   (plist-put org-format-latex-options :background 'auto)))
+   (plist-put org-format-latex-options :scale 1.5)
+   (plist-put org-format-latex-options :foreground 'default)
+   (plist-put org-format-latex-options :background 'default)))
 
-(setq org-preview-latex-image-directory (expand-file-name "/home/arn/Pictures/latex-images"))
+(setq org-preview-latex-image-directory "/home/arn/Documents/Latex-preview-images/")
 
 #+end_src
 
@@ -1519,7 +1414,7 @@ dvisvgm needs to be installed for this to work.
 #+begin_src emacs-lisp :tangle "init.el"
   (setq org-latex-compiler "lualatex")
   (setq org-latex-pdf-process
-        '("latexmk -gg -lualatex %f"))
+        '("latexmk -gg -pdflua -f %f"))
 
   (customize-set-value 'org-latex-hyperref-template "\\hypersetup{\n pdfauthor={%a}, \n pdftitle={%t}, \n pdfkeywords={%k}, pdfsubject={%d}, \n pdfcreator={%c}, \n pdflang={%L}, \n colorlinks=true}\n")
   (add-to-list 'org-latex-default-packages-alist "\\PassOptionsToPackage{hyphens}{url}")
@@ -1546,8 +1441,20 @@ dvisvgm needs to be installed for this to work.
 :END:
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package auctex
-    :ensure t)
+  (require 'reftex)
+
+
+    (use-package auctex
+          :ensure t
+          :config
+          (setq TeX-auto-save t)
+          (setq TeX-parse-self t)
+          (setq-default TeX-master nil)
+          (add-hook 'LaTeX-mode-hook 'auto-fill-mode)
+          (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+          (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+          (setq reftex-plug-into-AUCTeX t)
+          (setq TeX-PDF-mode t))
   
 #+end_src
 
@@ -1613,3 +1520,7 @@ For my current needs, I only use citation in org-mode. The following configurati
   (provide 'init)
   ;;; init.el ends here
 #+end_src
+
+# Local Variables:
+# jinx-local-words: "AucTex savehist"
+# End:
