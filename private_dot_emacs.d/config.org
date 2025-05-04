@@ -978,6 +978,14 @@ Removing this code as it works with Corfu. With Company mode this most probably 
 :ID:       6993f546-26cc-4489-9314-e8f9da7d680e
 :CREATED:  [2025-01-13 Mon 04:18]
 :END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package rg
+    :ensure t
+    :config
+    (setq rg-executable (executable-find "rga")))
+  
+#+end_src
 ** Wgrep to edit grep files
 :PROPERTIES:
 :ID:       7871a4a5-7e39-497c-898d-dfebab3fe555
