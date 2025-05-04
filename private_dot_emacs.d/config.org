@@ -979,6 +979,8 @@ Removing this code as it works with Corfu. With Company mode this most probably 
 :CREATED:  [2025-01-13 Mon 04:18]
 :END:
 
+This works reasonably well. The fzf integration does not seem to work though. Needs to be explored if possible in the future. But a very simple search with exact string literal does seem to work. Which is quite useful.
+
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package rg
     :ensure t
