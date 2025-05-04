@@ -247,6 +247,8 @@ I am not entirely sure what this does. Need to look at this further.
         '(("melpa" . "https://melpa.org/packages/")
           ("gnu" . "https://elpa.gnu.org/packages/")
           ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+
+  (add-to-list 'load-path "~/.emacs.d/lisp-files/")
 #+end_src
 *** Show only name in package list
 :PROPERTIES:
@@ -290,7 +292,9 @@ This is a borrowed function from unknown source. This function cleans up the pac
     ("C-c c" . org-capture)
     ("C-c C-q" . org-set-tags-command)
     ("C-c C-d" . org-deadline)
-    ("C-c C-s" . org-schedule))
+    ("C-c C-s" . org-schedule)
+    ("C-c i" . org-cite-insert))
+  
 
 
 #+end_src
@@ -513,7 +517,7 @@ All of the fonts here are free and can be downloaded by a simple search. I will 
   (custom-theme-set-faces
    'user
    '(fixed-pitch ((t (:family "MartianMono" :height 100))))
-   '(variable-pitch ((t (:family "Roboto" :height 120)))))
+   '(variable-pitch ((t (:family "Roboto" :height 130)))))
 
   ;; setup font for bengali
   (set-fontset-font "fontset-default" 'bengali (font-spec :family "Noto Sans Bengali" :size 20))
@@ -566,8 +570,8 @@ All of the fonts here are free and can be downloaded by a simple search. I will 
           '((matches . (bold underline))
             (selection . (semibold italic))))
 
-    (load-theme 'modus-operandi-tinted t t)
-    (enable-theme 'modus-operandi-tinted))
+    (load-theme 'modus-operandi t t)
+    (enable-theme 'modus-operandi))
 #+end_src
 
 *** Line numbers
@@ -1066,38 +1070,39 @@ For titles and body texts, Org-mode should use variable pitch fonts. However, fo
 Previously I have used Org-roam for this purpose. However, I find the org-node package to be simpler to understand and it (apparently) provides better performance than Org-roam.
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package org-node
-    :ensure t
-    :after org
-    :config
-    (org-node-cache-mode)
-    ;; prints all backlinks in the node file
-    (org-node-backlink-mode)
-    ;; proactively updates backlinks when there is a change
-    (setq org-node-backlink-aggressive t)
-    ;; not sure what this extra-dirs does. But it seems to solve the problem when an ID is not found
-    (setq org-node-ask-directory "/home/arn/Documents/org-files")
-    (setq org-node-data-dir '("/home/arn/Documents/org-files"))
-    (setq org-id-locations-file '("/home/arn/Documents/org-files/id-locations.el"))
-    (setq org-node-extra-id-dirs
-          '("/home/arn/Documents/org-files"))
-    ;; provide completion
-    (org-node-complete-at-point-mode)
-    ;; in case nodes with the same name exists
-    (setq org-node-alter-candidates t)
-    :bind
-    ("C-c nf" . org-node-find)
-    ("C-c ni" . org-node-insert-link)
-    ("C-c ns" . org-node-grep)
-    ;; extract a heading to a new file and node
-    ("C-c nc" . org-node-extract-subtree)
-    ;; provide an ID to a heading
-    ("C-c nn" . org-node-nodeify-entry)
+    (use-package org-node
+      :ensure t
+      :after org
+      :config
+      (org-node-cache-mode)
+      ;; prints all backlinks in the node file
+      (org-node-backlink-mode)
+      ;; proactively updates backlinks when there is a change
+      (setq org-node-backlink-aggressive t)
+      ;; not sure what this extra-dirs does. But it seems to solve the problem when an ID is not found
+      (setq org-node-ask-directory "/home/arn/Documents/org-files")
+      (setq org-node-data-dir '("~/.emacs.d/"))
+      (setq org-id-locations-file '("~/.emacs.d/var/org/id-locations.el"))
+      (setq org-node-extra-id-dirs
+            '("/home/arn/Documents/org-files"
+              "/home/arn/Documents/MSCSE/"))
+      ;; provide completion
+      (org-node-complete-at-point-mode)
+      ;; in case nodes with the same name exists
+      (setq org-node-alter-candidates t)
+      :bind
+      ("C-c nf" . org-node-find)
+      ("C-c ni" . org-node-insert-link)
+      ("C-c ns" . org-node-grep)
+      ;; extract a heading to a new file and node
+      ("C-c nc" . org-node-extract-subtree)
+      ;; provide an ID to a heading
+      ("C-c nn" . org-node-nodeify-entry)
 
-    ;; insert a org heading with ID
-    ("C-c nh" . org-node-insert-heading)
-    ;; rename an asset and update links. Only works in the directory chosen. Best to keep all assets in the same root directory. Has to be explored how to make sure this works
-    ("C-c na" . org-node-rename-asset-and-rewrite-links))
+      ;; insert a org heading with ID
+      ("C-c nh" . org-node-insert-heading)
+      ;; rename an asset and update links. Only works in the directory chosen. Best to keep all assets in the same root directory. Has to be explored how to make sure this works
+      ("C-c na" . org-node-rename-asset-and-rewrite-links))
 #+end_src
 
 ** Task Management with Org-agenda:
@@ -1265,29 +1270,6 @@ The idea of the workflow is quite simple and intentionally so. There could be it
     (pdf-tools-install))
   
 #+end_src
-*** PDF-tools on Windows
-:PROPERTIES:
-:ID:       0c11cc3f-3468-401a-beb9-1f2772424af1
-:CREATED:  [2025-01-07 Tue 03:35]
-:END:
-
-For Windows systems, some additional steps are required. As mentioned in the [[id:e372e95b-8f96-496b-a023-651e8a9a54f5][Installation]] section particularly for [[id:7a3dd237-e584-4631-9fb7-37747c36a67b][Windows]] systems, The MSYS2 distribution of Emacs is used and most programs necessary for [[id:70fe6549-ddff-4b42-82a9-c11d72409392][Supplementary setup]] is also installed using MSYS2 distribution. Similarly, the mingw64 package of epdfinfo needs to be installed.
-
-PDF tools uses a separate program called epdfinfo that uses a library called Poppler to read data from PDF. On Linux systems (maybe also MacOS), merely installing the package PDF-tools in Emacs installs these programs automatically and doesn't require any manual intervention. On Windows, this program has to be installed separately and some additional config is required.
-
-#+begin_src emacs-lisp :tangle "init.el"
-    ;; (use-package pdf-tools
-    ;;   :ensure t
-    ;;   :init
-    ;;   ;; required for Windows systems
-    ;;   (setenv "PATH" (concat "C:/msys64/mingw64/bin/" ";" (getenv "PATH")))
-    ;;   (pdf-tools-install)
-    ;;   :custom
-    ;;   ;; required for Windows systems
-    ;;   (pdf-info-epdfinfo-program "C:/msys64/mingw64/bin/epdfinfo.exe"))
-#+end_src
-*** TODO Figure out how to do config based on OS >> Move to General Settings
-- So that when the config file is installed, the correct config is applied automatically in Emacs based on the OS.
 
 *** Org-noter for PDF annotation
 :PROPERTIES:
@@ -1302,10 +1284,53 @@ PDF tools uses a separate program called epdfinfo that uses a library called Pop
 :END:
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package org-pdftools
-    :ensure t
-    :hook (org-mode . org-pdftools-setup-link))
-  
+;;    (load "~/.emacs.d/lisp-files/org-pdftools.el")
+;;    (add-hook 'org-mode 'org-pdftools-setup-link)
+
+    (use-package org-noter
+      :ensure t  
+      :config
+      ;; Your org-noter config ........
+      (require 'org-noter-pdftools))
+
+  ;; this is loaded manually above because of a bug. Check status of https://github.com/fuxialexander/org-pdftools/issues/110 to revert back to installing with package.el
+    (use-package org-pdftools
+      :ensure t
+      :hook (org-mode . org-pdftools-setup-link))
+
+    (use-package org-noter-pdftools
+      :ensure t
+      :after org-noter
+      :config
+      ;; Add a function to ensure precise note is inserted
+      (defun org-noter-pdftools-insert-precise-note (&optional toggle-no-questions)
+        (interactive "P")
+        (org-noter--with-valid-session
+         (let ((org-noter-insert-note-no-questions (if toggle-no-questions
+                                                       (not org-noter-insert-note-no-questions)
+                                                     org-noter-insert-note-no-questions))
+               (org-pdftools-use-isearch-link t)
+               (org-pdftools-use-freepointer-annot t))
+           (org-noter-insert-note (org-noter--get-precise-info)))))
+
+      ;; fix https://github.com/weirdNox/org-noter/pull/93/commits/f8349ae7575e599f375de1be6be2d0d5de4e6cbf
+      (defun org-noter-set-start-location (&optional arg)
+        "When opening a session with this document, go to the current location.
+    With a prefix ARG, remove start location."
+        (interactive "P")
+        (org-noter--with-valid-session
+         (let ((inhibit-read-only t)
+               (ast (org-noter--parse-root))
+               (location (org-noter--doc-approx-location (when (called-interactively-p 'any) 'interactive))))
+           (with-current-buffer (org-noter--session-notes-buffer session)
+             (org-with-wide-buffer
+              (goto-char (org-element-property :begin ast))
+              (if arg
+                  (org-entry-delete nil org-noter-property-note-location)
+                (org-entry-put nil org-noter-property-note-location
+                               (org-noter--pretty-print-location location))))))))
+      (with-eval-after-load 'pdf-annot
+        (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
 #+end_src
 
 ** Latex
@@ -1375,8 +1400,8 @@ PDF tools uses a separate program called epdfinfo that uses a library called Pop
   :custom
   (org-format-latex-options
    (plist-put org-format-latex-options :scale 1.5)
-   (plist-put org-format-latex-options :foreground 'default)
-   (plist-put org-format-latex-options :background 'default)))
+   (plist-put org-format-latex-options :foreground 'auto)
+   (plist-put org-format-latex-options :background "Transparent")))
 
 (setq org-preview-latex-image-directory "/home/arn/Documents/Latex-preview-images/")
 
@@ -1391,18 +1416,30 @@ PDF tools uses a separate program called epdfinfo that uses a library called Pop
 dvisvgm needs to be installed for this to work.
 
 #+begin_src emacs-lisp :tangle "init.el"
-(setq org-preview-latex-process-alist
-  '((dvi-lua :programs ("lualatex" "dvisvgm")
-                  :description "dvi > svg"
-                  :message "you need to install the programs: lualatex and dvisvgm."
+  (setq org-preview-latex-process-alist
+    '((dvipng-lua :programs ("lualatex" "dvipng")
+                  :description "dvi > png"
+                  :message "the programs lualatex and dvipng are needed."
                   :image-input-type "dvi"
-                  :image-output-type "svg"
+                  :image-output-type "png"
                   :image-size-adjust (1.0 . 1.0)
                   :latex-compiler
                   ("lualatex --interaction=nonstopmode --shell-escape --output-format=dvi --output-directory=%o %f")
-                  :image-converter
-                  ("dvisvgm %f -n -b min -c %S -o %O"))))
-(setq org-preview-latex-default-process 'dvi-lua)
+                  :image-converter ("dvipng -D %D -T tight -o %O %f")
+                  :transparent-image-converter
+                  ("dvipng -D %D -T tight -bg Transparent -o %O %f"))
+      (dvisvg-lua :programs ("lualatex" "dvisvgm")
+                    :description "dvi > svg"
+                    :message "you need to install the programs: lualatex and dvisvgm."
+                    :image-input-type "dvi"
+                    :image-output-type "svg"
+                    :image-size-adjust (1.0 . 1.0)
+                    :latex-compiler
+                    ("lualatex --interaction=nonstopmode --shell-escape --output-format=dvi --output-directory=%o %f")
+                    :image-converter
+                    ("dvisvgm %f -n -b min -c %S -o %O"))))
+  (setq org-preview-latex-default-process 'dvisvg-lua)
+  
 
 #+end_src
 *** Org latex export
@@ -1450,12 +1487,13 @@ dvisvgm needs to be installed for this to work.
           (setq TeX-auto-save t)
           (setq TeX-parse-self t)
           (setq-default TeX-master nil)
+          (setq TeX-engine (quote luatex))
           (add-hook 'LaTeX-mode-hook 'auto-fill-mode)
           (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
           (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
           (setq reftex-plug-into-AUCTeX t)
           (setq TeX-PDF-mode t))
-  
+
 #+end_src
 
 *** Input method for Latex math
