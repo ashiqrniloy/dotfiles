@@ -156,7 +156,7 @@ This is required because when emacs loads, the font looks too large. This is onl
 #+begin_src emacs-lisp :tangle "early-init.el"
     ;; setup default font
   (add-to-list 'default-frame-alist '(font . "MartianMono" ))
-  (set-face-attribute 'default t :font "MartianMono" :height 100)
+  (set-face-attribute 'default t :font "MartianMono" :height 106)
   
 #+end_src
 ** Early Initialization end:
@@ -274,29 +274,27 @@ This is a borrowed function from unknown source. This function cleans up the pac
 :CREATED:  [2025-01-03 Fri 19:50]
 :END:
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package bind-key
-    ;; C-x prefix is for general commands
-    ;; C-c prefix is for current major mode commands
-    :bind
-    ("C-h y" . describe-personal-keybindings)
-    ("C-x SPC" . execute-extended-command)
-    ("<escape>" . keyboard-escape-quit)
-    ("C-g" . keyboard-quit)
-    ("C-x C-r" . arn/reload-init-file)
-    ("C-x k" . kill-current-buffer)
-    ("C-x C-k" . quit-window)
-    ("C-x w" . find-file-other-window)
-    ("C-x C-s" . save-buffer)
-    ("C-c l" . org-store-link)
-    ("C-c a" . org-agenda)
-    ("C-c c" . org-capture)
-    ("C-c C-q" . org-set-tags-command)
-    ("C-c C-d" . org-deadline)
-    ("C-c C-s" . org-schedule)
-    ("C-c i" . org-cite-insert))
-  
-
-
+    (use-package bind-key
+      ;; C-x prefix is for general commands
+      ;; C-c prefix is for current major mode commands
+      :bind
+      ("C-h y" . describe-personal-keybindings)
+      ("C-x SPC" . execute-extended-command)
+      ("<escape>" . keyboard-escape-quit)
+      ("C-g" . keyboard-quit)
+      ("C-x C-r" . arn/reload-init-file)
+      ("C-x k" . kill-current-buffer)
+      ("C-x C-k" . quit-window)
+      ("C-x w" . find-file-other-window)
+      ("C-x C-s" . save-buffer)
+      ("C-c l" . org-store-link)
+      ("C-c a" . org-agenda)
+      ("C-c c" . org-capture)
+      ("C-c C-q" . org-set-tags-command)
+      ("C-c C-d" . org-deadline)
+      ("C-c C-s" . org-schedule)
+      ("C-c i" . org-cite-insert)
+      ("C-c j" . org-journal-new-entry))
 #+end_src
 
 ** Modal editing with Meow
@@ -457,7 +455,7 @@ This package provides a better formatting for the documenation pages.
    '(tab-bar-show nil)
    '(tab-bar-close-button-show nil)
    '(pixel-scroll-precision-mode t)
-   '(line-spacing .2))
+   '(line-spacing .4))
 #+end_src
 
 *** Improved scrolling
@@ -504,6 +502,9 @@ Needs to be implemented with the native vc-use-package setup for emacs-30
 :ID:       3146e3f0-a10b-42d9-919a-47152b743dde
 :CREATED:  [2025-01-05 Sun 03:06]
 :END:
+:BACKLINKS:
+[2025-05-10 Sat 02:44] <- [[id:70fe6549-ddff-4b42-82a9-c11d72409392][Supplementary setup]]
+:END:
 
 This is one of the steps required for a new setup. The following fonts are to be installed:
 
@@ -516,8 +517,8 @@ All of the fonts here are free and can be downloaded by a simple search. I will 
     ;; setup variable pitch font
   (custom-theme-set-faces
    'user
-   '(fixed-pitch ((t (:family "MartianMono" :height 100))))
-   '(variable-pitch ((t (:family "Roboto" :height 130)))))
+   '(fixed-pitch ((t (:family "MartianMono" :height 106))))
+   '(variable-pitch ((t (:family "Merriweather" :height 120)))))
 
   ;; setup font for bengali
   (set-fontset-font "fontset-default" 'bengali (font-spec :family "Noto Sans Bengali" :size 20))
@@ -1216,6 +1217,19 @@ The idea of the workflow is quite simple and intentionally so. There could be it
   
 #+end_src
 
+** Journaling with Org
+:PROPERTIES:
+:ID:       5fdff83c-2ad5-43a3-93f8-ae6ff88531c8
+:CREATED:  [2025-05-09 Fri 18:03]
+:END:
+
+#+begin_src emacs-lisp :tangle "init.el"
+      (use-package org-journal
+        :ensure t
+        :config
+        (setq org-journal-dir "~/Documents/org-files/journal/"))
+#+end_src
+
 ** Capture templates:
 :PROPERTIES:
 :ID:       7053866f-7efc-464d-bb11-cb340bae80ee
@@ -1489,8 +1503,6 @@ dvisvgm needs to be installed for this to work.
 
 #+begin_src emacs-lisp :tangle "init.el"
   (require 'reftex)
-
-
     (use-package auctex
           :ensure t
           :config
@@ -1501,6 +1513,8 @@ dvisvgm needs to be installed for this to work.
           (add-hook 'LaTeX-mode-hook 'auto-fill-mode)
           (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
           (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+          (setq TeX-view-program-selection '((output-pdf "pdf-tools")))
+          (setq TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
           (setq reftex-plug-into-AUCTeX t)
           (setq TeX-PDF-mode t))
 
@@ -1532,6 +1546,9 @@ For my current needs, I only use citation in org-mode. The following configurati
     ;; citation with citar
   (use-package citar
     :ensure t
+    :hook
+    (LaTeX-mode . citar-capf-setup)
+    (org-mode . citar-capf-setup)
     :custom
     (org-cite-insert-processor 'citar)
     (org-cite-follow-processor 'citar)
