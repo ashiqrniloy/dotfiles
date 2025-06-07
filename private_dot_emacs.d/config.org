@@ -1441,27 +1441,16 @@ dvisvgm needs to be installed for this to work.
 
 #+begin_src emacs-lisp :tangle "init.el"
   (setq org-preview-latex-process-alist
-    '((dvipng-lua :programs ("lualatex" "dvipng")
-                  :description "dvi > png"
-                  :message "the programs lualatex and dvipng are needed."
+    '((dvisvg-lua :programs ("lualatex" "dvisvgm")
+                  :description "dvi > svg"
+                  :message "you need to install the programs: lualatex and dvisvgm."
                   :image-input-type "dvi"
-                  :image-output-type "png"
+                  :image-output-type "svg"
                   :image-size-adjust (1.0 . 1.0)
                   :latex-compiler
                   ("lualatex --interaction=nonstopmode --shell-escape --output-format=dvi --output-directory=%o %f")
-                  :image-converter ("dvipng -D %D -T tight -o %O %f")
-                  :transparent-image-converter
-                  ("dvipng -D %D -T tight -bg Transparent -o %O %f"))
-      (dvisvg-lua :programs ("lualatex" "dvisvgm")
-                    :description "dvi > svg"
-                    :message "you need to install the programs: lualatex and dvisvgm."
-                    :image-input-type "dvi"
-                    :image-output-type "svg"
-                    :image-size-adjust (1.0 . 1.0)
-                    :latex-compiler
-                    ("lualatex --interaction=nonstopmode --shell-escape --output-format=dvi --output-directory=%o %f")
-                    :image-converter
-                    ("dvisvgm %f -n -b min -c %S -o %O"))))
+                  :image-converter
+                  ("dvisvgm %f -n -b min -c %S -o %O"))))
   (setq org-preview-latex-default-process 'dvisvg-lua)
   
 
@@ -1473,12 +1462,14 @@ dvisvgm needs to be installed for this to work.
 :END:
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (setq org-latex-compiler "lualatex")
-  (setq org-latex-pdf-process
-        '("latexmk -gg -pdflua -f %f"))
+    (setq org-latex-compiler "lualatex")
+    ;; this needs to be fixed. Does not work yet.
+    (setq org-latex-pdf-process
+          '("lualatex -shell-escape -interaction nonstopmode %f"
+            "lualatex -shell-escape -interaction nonstopmode %f"))
 
-  (customize-set-value 'org-latex-hyperref-template "\\hypersetup{\n pdfauthor={%a}, \n pdftitle={%t}, \n pdfkeywords={%k}, pdfsubject={%d}, \n pdfcreator={%c}, \n pdflang={%L}, \n colorlinks=true}\n")
-  (add-to-list 'org-latex-default-packages-alist "\\PassOptionsToPackage{hyphens}{url}")
+    (customize-set-value 'org-latex-hyperref-template "\\hypersetup{\n pdfauthor={%a}, \n pdftitle={%t}, \n pdfkeywords={%k}, pdfsubject={%d}, \n pdfcreator={%c}, \n pdflang={%L}, \n colorlinks=true}\n")
+    (add-to-list 'org-latex-default-packages-alist "\\PassOptionsToPackage{hyphens}{url}")
 
 
 #+end_src
