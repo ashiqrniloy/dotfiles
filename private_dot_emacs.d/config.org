@@ -571,8 +571,8 @@ All of the fonts here are free and can be downloaded by a simple search. I will 
           '((matches . (bold underline))
             (selection . (semibold italic))))
 
-    (load-theme 'modus-operandi t t)
-    (enable-theme 'modus-operandi))
+    (load-theme 'modus-operandi-tinted t t)
+    (enable-theme 'modus-operandi-tinted))
 #+end_src
 
 *** Line numbers
@@ -1414,20 +1414,20 @@ The idea of the workflow is quite simple and intentionally so. There could be it
 :END:
 
 #+begin_src emacs-lisp :tangle "init.el"
-(use-package org-fragtog
-  :ensure t
-  :after org
-  :custom
-  (org-startup-with-latex-preview t)
-  :hook
-  (org-mode . org-fragtog-mode)
-  :custom
-  (org-format-latex-options
-   (plist-put org-format-latex-options :scale 1.5)
-   (plist-put org-format-latex-options :foreground 'auto)
-   (plist-put org-format-latex-options :background "Transparent")))
+      (use-package org-fragtog
+        :ensure t
+        :after org
+        :custom
+        (org-startup-with-latex-preview t)
+        :hook
+        (org-mode . org-fragtog-mode))
+      ;;   :custom
+      ;;   (org-format-latex-options
+      ;;    (plist-put org-format-latex-options :scale 1.5)
+      ;;    (plist-put org-format-latex-options :foreground 'auto)
+      ;;    (plist-put org-format-latex-options :background "Transparent")))
 
-(setq org-preview-latex-image-directory "/home/arn/Documents/Latex-preview-images/")
+      (setq org-preview-latex-image-directory "/home/arn/Documents/Latex-preview-images/")
 
 #+end_src
 
@@ -1443,16 +1443,29 @@ dvisvgm needs to be installed for this to work.
   (setq org-preview-latex-process-alist
     '((dvisvg-lua :programs ("lualatex" "dvisvgm")
                   :description "dvi > svg"
-                  :message "you need to install the programs: lualatex and dvisvgm."
+                  :message "Install the programs lualatex and dvisvgm"
                   :image-input-type "dvi"
                   :image-output-type "svg"
                   :image-size-adjust (1.0 . 1.0)
                   :latex-compiler
                   ("lualatex --interaction=nonstopmode --shell-escape --output-format=dvi --output-directory=%o %f")
                   :image-converter
-                  ("dvisvgm %f -n -b min -c %S -o %O"))))
-  (setq org-preview-latex-default-process 'dvisvg-lua)
+                  ("dvisvgm %f -n -b min -c %S -o %O"))
+      (dvipng-lua :programs ("lualatex" "dvipng")
+                  :description "dvi > png"
+                  :message "Install the programs lualatex and dvipng"
+                  :image-input-type "dvi"
+                  :image-output-type "png"
+                  :image-size-adjust (1.0 . 1.0)
+                  :latex-compiler
+                  ("lualatex --interaction=nonstopmode --shell-escape --output-format=dvi --output-directory=%o %f")
+                  :image-converter
+                  ("dvipng -D %D -bg Transparent -o %O %f")
+                  :transparent-image-converter
+                  ("dvipng -D %D -bg Transparent -o %O %f"))))
   
+  (setq org-preview-latex-default-process 'dvisvg-lua)
+
 
 #+end_src
 *** Org latex export
