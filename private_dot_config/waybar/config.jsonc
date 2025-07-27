@@ -43,12 +43,12 @@
         "tag-labels": [
             "1-Browser",
             "2-Terminal",
-            "3-Emacs",
-            "4-Zotero",
-            "5-Gemini",
-            "6-NotebookLM",
-            "7-Containers",
-            "8-Work",
+            "3-AI",
+            "4-Text",
+            "5-Code",
+            "6-Work",
+            "7-Misc",
+            "8-Misc",
             "9-Misc"
         ]
     },
